@@ -1,0 +1,266 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "./assets/mentor/vendor/aos/aos.css";
+@import "./assets/mentor/vendor/glightbox/css/glightbox.min.css";
+@import "./assets/mentor/vendor/swiper/swiper-bundle.min.css";
+@import "./assets/mentor/css/main.css";
+@import "./styles/design-system.scss";
+@import "./styles/admin-design-system.css";
+
+/* Fix Mentor navbar button alignment */
+
+
+/* ===== Header WOW ===== */
+.header-wow{
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,.86);
+  border-bottom: 1px solid rgba(16,24,40,.08);
+}
+
+.brand-wow{
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-badge{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #1acc8d 0%, #13b07b 60%, #0ea36f 100%);
+  box-shadow: 0 14px 30px rgba(26,204,141,.22);
+}
+
+.brand-text{
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.brand-name{
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: #0b1a2b;
+  font-size: 18px;
+}
+
+.brand-sub{
+  font-size: 12px;
+  color: rgba(11,26,43,.60);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Make nav cleaner */
+.nav-wow a{
+  font-weight: 700;
+  color: rgba(11,26,43,.78);
+  padding: 10px 12px !important;
+  border-radius: 999px;
+  transition: background .15s ease, color .15s ease;
+}
+
+.nav-wow a:hover{
+  background: rgba(26,204,141,.10);
+  color: #0b1a2b;
+}
+
+.nav-wow a.active{
+  background: rgba(26,204,141,.16);
+  color: #0b1a2b;
+}
+
+/* Buttons */
+.btn-cta-wow{
+  height: 40px;
+  border-radius: 999px;
+  font-weight: 800;
+  border: none;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #1acc8d 0%, #13b07b 60%, #0ea36f 100%);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(26,204,141,.22);
+}
+
+.btn-cta-wow:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 18px 40px rgba(26,204,141,.26);
+  color: #fff;
+}
+
+.btn-ghost-wow{
+  height: 40px;
+  border-radius: 999px;
+  font-weight: 800;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(16,24,40,.12);
+  background: rgba(255,255,255,.7);
+  color: rgba(11,26,43,.85);
+}
+
+.btn-ghost-wow:hover{
+  border-color: rgba(26,204,141,.45);
+  box-shadow: 0 0 0 .2rem rgba(26,204,141,.12);
+  color: #0b1a2b;
+}
+
+/* User chip */
+.user-chip{
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(16,24,40,.12);
+  background: rgba(255,255,255,.75);
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.user-chip .avatar{
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #0b1a2b;
+  background: rgba(26,204,141,.18);
+}
+
+.user-menu{
+  border-radius: 16px;
+  border: 1px solid rgba(16,24,40,.10);
+  box-shadow: 0 20px 50px rgba(16,24,40,.12);
+  overflow: hidden;
+}
+
+.user-menu .dropdown-item{
+  font-weight: 700;
+  padding: 10px 14px;
+}
+/* ================================
+   FIX: Header links not clickable
+   (Mentor main.css overlay issue)
+================================ */
+
+/* Make sure header is a stacking context above page content */
+#header.header-wow{
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+}
+
+/* Kill any overlay/pseudo-elements that may be above the nav */
+#header.header-wow::before,
+#header.header-wow::after,
+.header.header-wow::before,
+.header.header-wow::after{
+  pointer-events: none !important;
+}
+
+/* Ensure nav + buttons are above everything in the header */
+#header.header-wow .container,
+#header.header-wow .container-fluid,
+#header.header-wow .container-xl,
+#header.header-wow .logo,
+#header.header-wow #navmenu,
+#header.header-wow #navmenu ul,
+#header.header-wow #navmenu li,
+#header.header-wow #navmenu a,
+#header.header-wow .btn,
+#header.header-wow .dropdown{
+  position: relative;
+  z-index: 5;
+}
+
+/* =========================================
+   HARD FIX for Mentor header:
+   - restore correct navbar layout
+   - remove overlay blocking clicks
+========================================= */
+
+/* Make header always above everything */
+#header.header-wow{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 99999 !important;
+  isolation: isolate; /* new stacking context */
+}
+
+/* Kill Mentor pseudo overlays (common click blocker) */
+#header.header-wow::before,
+#header.header-wow::after,
+.header#header::before,
+.header#header::after{
+  content: none !important;
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Ensure header and its children can receive clicks */
+#header.header-wow,
+#header.header-wow *{
+  pointer-events: auto !important;
+}
+
+/* FIX THE BROKEN LAYOUT (Mentor sets weird widths/justify) */
+#header.header-wow #navmenu{
+  display: flex !important;
+  align-items: center !important;
+}
+
+#header.header-wow #navmenu > ul{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;   /* center the nav items */
+  gap: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  flex-wrap: nowrap !important;
+}
+
+#header.header-wow #navmenu > ul > li{
+  position: relative !important;
+  list-style: none !important;
+}
+
+#header.header-wow #navmenu a{
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+}
+
+/* Keep brand left, nav center, actions right */
+#header.header-wow .container-fluid{
+  justify-content: space-between !important;
+}
+
+/* Put nav in the middle */
+#header.header-wow #navmenu{
+  flex: 1 1 auto !important;
+  justify-content: center !important;
+}
+
+/* Keep brand from shrinking */
+#header.header-wow .brand-wow{
+  flex: 0 0 auto !important;
+}
+
+/* Keep right actions aligned */
+#header.header-wow .ms-3{
+  flex: 0 0 auto !important;
+}
+
+/* If a section below overlaps header, force it behind */
+section, main, .hero, .section{
+  position: relative;
+  z-index: 1;
+}

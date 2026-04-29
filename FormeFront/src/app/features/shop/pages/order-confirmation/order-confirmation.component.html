@@ -1,0 +1,35 @@
+<section class="order-confirmation-section py-5">
+  <div class="container">
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (error) {
+      <div class="alert alert-danger" role="alert">{{ error }}</div>
+      <a routerLink="/courses" class="btn btn-primary">Back to courses</a>
+    } @else if (order) {
+      <h2 class="mb-4">Order confirmed</h2>
+      <p class="text-success mb-4">Thank you. Your order has been completed.</p>
+      <div class="card mb-4">
+        <div class="card-body">
+          <p><strong>Order #{{ order.idOrder }}</strong></p>
+          <p class="mb-0">Total: {{ order.totalAmount }} {{ order.currency ?? 'TND' }}</p>
+        </div>
+      </div>
+      @if (items.length > 0) {
+        <h5 class="mb-3">Items</h5>
+        <ul class="list-group mb-4">
+          @for (item of items; track item.idOrderItem) {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ item.formationTitleSnapshot }} × {{ item.quantity }}</span>
+              <span>{{ item.unitPriceSnapshot * item.quantity }} TND</span>
+            </li>
+          }
+        </ul>
+      }
+      <a routerLink="/courses" class="btn btn-primary">Continue shopping</a>
+    }
+  </div>
+</section>

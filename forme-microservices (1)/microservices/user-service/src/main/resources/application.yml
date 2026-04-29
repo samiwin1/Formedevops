@@ -1,0 +1,65 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: user-service
+
+    servlet:
+       multipart:
+         max-file-size: 5MB
+         max-request-size: 6MB
+
+  # ── Database ──────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:mysql://localhost:3306/forme?useUnicode=true&createDatabaseIfNotExist=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: root
+    password:                 # fill in your MySQL password if needed
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # ── JPA / Hibernate ───────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+# ── JWT ──────────────────────────────────────────────────────────────────────
+app:
+  jwt:
+    secret: ThisIsA32+CharSecretKeyChangeMeNow!!!
+    expiration-minutes: 120
+  bootstrap:
+    superadmin:
+      email: superadmin@forme.tn
+      password: SuperAdmin123!
+      firstName: Super
+      lastName: Admin
+
+  # ✅ reCAPTCHA Secret Key
+  recaptcha:
+    secret-key: 6Ldiv34sAAAAAN1uBv4o31Ewi3YHuYcvwDWpnlez
+
+# ── Eureka Client ─────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# ── Actuator ──────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always

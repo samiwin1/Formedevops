@@ -1,0 +1,128 @@
+name: ForME CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+
+env:
+  BACKEND_USER_SERVICE_DIR: "forme-microservices (1)/microservices/user-service"
+  FRONTEND_DIR: "FormeFront"
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+jobs:
+  backend-user-service:
+    name: Backend User Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Run user-service unit tests
+        working-directory: ${{ env.BACKEND_USER_SERVICE_DIR }}
+        run: mvn -B test
+
+      - name: Build user-service
+        working-directory: ${{ env.BACKEND_USER_SERVICE_DIR }}
+        run: mvn -B -DskipTests package
+
+      - name: SonarQube backend placeholder
+        if: ${{ env.SONAR_TOKEN == '' || env.SONAR_HOST_URL == '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          echo "SonarQube backend scan placeholder."
+          echo "Add SONAR_TOKEN and SONAR_HOST_URL repository secrets to enable the backend scan."
+
+      - name: SonarQube backend scan
+        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_HOST_URL != '' }}
+        working-directory: ${{ env.BACKEND_USER_SERVICE_DIR }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          mvn -B sonar:sonar \
+            -Dsonar.host.url="$SONAR_HOST_URL" \
+            -Dsonar.token="$SONAR_TOKEN"
+
+  frontend-dashboard:
+    name: Frontend Auth and Dashboard
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ${{ env.FRONTEND_DIR }}/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: npm ci
+
+      - name: Run Angular unit tests
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: npx ng test --watch=false --browsers=ChromeHeadless --code-coverage
+
+      - name: Build Angular frontend
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: npm run build
+
+      - name: SonarQube frontend placeholder
+        if: ${{ env.SONAR_TOKEN == '' || env.SONAR_HOST_URL == '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          echo "SonarQube frontend scan placeholder."
+          echo "Add SONAR_TOKEN and SONAR_HOST_URL repository secrets to enable the frontend scan."
+
+      - name: SonarQube frontend scan
+        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_HOST_URL != '' }}
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          projectBaseDir: ${{ env.FRONTEND_DIR }}
+
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs:
+      - backend-user-service
+      - frontend-dashboard
+
+    steps:
+      - name: Print CI scope
+        run: |
+          echo "ForME individual CI completed."
+          echo "Backend module: User module / user-service"
+          echo "Frontend modules: User/Auth and Admin Dashboard"
+          echo "Docker, Kubernetes, Prometheus, and Grafana are intentionally not part of this workflow yet."

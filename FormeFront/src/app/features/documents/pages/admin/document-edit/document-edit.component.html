@@ -1,0 +1,72 @@
+﻿<div class="catalog-page create-page">
+  <header class="catalog-header">
+    <div class="header-left">
+      <h1 class="catalog-title">Edit document</h1>
+      <p class="catalog-subtitle">Update metadata or replace the file.</p>
+    </div>
+    <a routerLink="/admin/documents/list" class="btn-back">
+      <i class="feather-arrow-left"></i>
+      Back to list
+    </a>
+  </header>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  } @else if (notFound) {
+    <div class="form-card">
+      <div class="alert-banner alert-danger">{{ error }}</div>
+      <a routerLink="/admin/documents/list" class="btn-back" style="margin-top:1rem;display:inline-flex;">Back to list</a>
+    </div>
+  } @else {
+    <div class="form-card">
+      @if (error) {
+        <div class="alert-banner alert-danger">{{ error }}</div>
+      }
+
+      @if (currentFileName) {
+        <p class="current-file">Current file: <strong>{{ currentFileName }}</strong></p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" class="form-control" formControlName="title" />
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <span class="form-error">Enter a title (min 2 characters).</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Formation</label>
+          <select class="form-control form-select" formControlName="formationId">
+            <option [ngValue]="null">Select a formation</option>
+            @for (f of formations; track f.id!) {
+              <option [ngValue]="f.id">{{ f.title }}</option>
+            }
+          </select>
+          @if (form.get('formationId')?.invalid && form.get('formationId')?.touched) {
+            <span class="form-error">Please choose a formation.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Replace file (optional)</label>
+          <input type="file" class="form-control" (change)="onFileSelected($event)" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" [disabled]="submitting">
+            @if (submitting) {
+              <span class="spinner-sm"></span> Saving...
+            } @else {
+              Save changes
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

@@ -1,0 +1,57 @@
+<div class="charts-root">
+
+  <div class="benchmark-banner">
+    <i class="bi bi-bar-chart-line-fill"></i>
+    Comparing against:
+    <strong>{{ benchmarks.sourceLabel }}</strong>
+    · Completion:
+    <span [class.above]="completionVsBenchmark >= 0" [class.below]="completionVsBenchmark < 0">
+      {{ completionVsBenchmark >= 0 ? '+' : '' }}{{ completionVsBenchmark }}%
+    </span>
+    · Pass rate:
+    <span [class.above]="passRateVsBenchmark >= 0" [class.below]="passRateVsBenchmark < 0">
+      {{ passRateVsBenchmark >= 0 ? '+' : '' }}{{ passRateVsBenchmark }}%
+    </span>
+  </div>
+
+  <div class="charts-grid">
+
+    <div class="chart-card wide">
+      <h3 class="chart-title">Training completion by formation</h3>
+      <p class="chart-sub">Progress by course with benchmark reference</p>
+      <div class="chart-wrap large">
+        <canvas id="formationChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title">7-day user activity trend</h3>
+      <p class="chart-sub">Recent active-user movement</p>
+      <div class="chart-wrap">
+        <canvas id="userTrendChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title">Revenue vs certifications issued</h3>
+      <p class="chart-sub">Monthly cross-domain trend</p>
+      <div class="chart-wrap">
+        <canvas id="revenueCertChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title">Assessment outcomes</h3>
+      <p class="chart-sub">Passed / Failed / Retrying</p>
+      <div class="chart-wrap">
+        <canvas id="assessChart"></canvas>
+      </div>
+      <div class="donut-legend">
+        <span class="legend-item green">Passed</span>
+        <span class="legend-item red">Failed</span>
+        <span class="legend-item amber">Retrying</span>
+      </div>
+    </div>
+
+  </div>
+</div>

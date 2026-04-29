@@ -1,0 +1,204 @@
+<!-- register.component.html -->
+<section class="auth-wrap">
+  <div class="auth-bg">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+
+  <div class="container py-5">
+    <div class="row gs g-4 align-items-center justify-content-center">
+      <!-- Left side -->
+      <div class="col-12 col-lg-6 d-none d-lg-block">
+        <div class="auth-hero">
+          <div class="brand">
+            <span class="dot"></span>
+            <span class="name">FORME</span>
+          </div>
+
+          <h1 class="title">
+            Create your account ✨ <br />
+            <span class="muted">Start learning, earn certifications, grow faster.</span>
+          </h1>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="num">24/7</div>
+              <div class="lbl">Access</div>
+            </div>
+            <div class="stat">
+              <div class="num">100%</div>
+              <div class="lbl">Secure</div>
+            </div>
+            <div class="stat">
+              <div class="num">Fast</div>
+              <div class="lbl">Onboarding</div>
+            </div>
+          </div>
+
+          <div class="mini-card">
+            <div class="mini-icon"><i class="bi bi-lightning-charge"></i></div>
+            <div>
+              <div class="mini-title">Quick setup</div>
+              <div class="mini-sub">Fill your info and you're ready to go.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form card -->
+      <div class="col-12 col-lg-6 col-xl-5">
+        <div class="auth-card">
+          <div class="auth-card-head">
+            <h2 class="mb-1">Register</h2>
+            <p class="text-muted mb-0">Create your account in seconds.</p>
+          </div>
+
+          <div class="alert alert-danger py-2" *ngIf="error">{{ error }}</div>
+
+          <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">First name</label>
+                <div class="input-icon">
+                  <i class="bi bi-person"></i>
+                  <input
+                    class="form-control"
+                    placeholder="Mohamed"
+                    formControlName="firstName"
+                    [class.is-invalid]="f['firstName'].touched && f['firstName'].invalid"
+                  />
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="f['firstName'].touched && f['firstName'].invalid">
+                  First name is required (min 2 chars).
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Last name</label>
+                <div class="input-icon">
+                  <i class="bi bi-person"></i>
+                  <input
+                    class="form-control"
+                    placeholder="Bouraoui"
+                    formControlName="lastName"
+                    [class.is-invalid]="f['lastName'].touched && f['lastName'].invalid"
+                  />
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="f['lastName'].touched && f['lastName'].invalid">
+                  Last name is required (min 2 chars).
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Email</label>
+                <div class="input-icon">
+                  <i class="bi bi-envelope"></i>
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="name@example.com"
+                    formControlName="email"
+                    [class.is-invalid]="f['email'].touched && f['email'].invalid"
+                  />
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="f['email'].touched && f['email'].invalid">
+                  Please enter a valid email.
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Password</label>
+                <div class="input-icon input-password">
+                  <i class="bi bi-key"></i>
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    class="form-control"
+                    placeholder="Minimum 8 characters"
+                    formControlName="password"
+                    [class.is-invalid]="f['password'].touched && f['password'].invalid"
+                  />
+                  <button type="button" class="pw-toggle" (click)="showPassword = !showPassword">
+                    <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="f['password'].touched && f['password'].invalid">
+                  Password must be at least 8 characters.
+                </div>
+              </div>
+
+              <!-- Profession Dropdown -->
+              <div class="col-12">
+                <label class="form-label">Profession</label>
+                <div class="input-icon">
+                  <i class="bi bi-briefcase"></i>
+                  <select
+                    class="form-control"
+                    formControlName="profession"
+                    [class.is-invalid]="f['profession'].touched && f['profession'].invalid"
+                  >
+                    <option *ngFor="let p of professionOptions" [value]="p.value">
+                      {{ p.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="f['profession'].touched && f['profession'].invalid">
+                  Profession is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="soft-sep my-4">
+              <span>Partner access (optional)</span>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Partner Id</label>
+                <div class="input-icon">
+                  <i class="bi bi-link-45deg"></i>
+                  <input type="number" class="form-control" placeholder="123" formControlName="partnerID" />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Partner Code</label>
+                <div class="input-icon">
+                  <i class="bi bi-shield-check"></i>
+                  <input class="form-control" placeholder="ABC-XYZ" formControlName="partnerCode" />
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ reCAPTCHA widget -->
+            <div class="mt-4">
+              <div id="recaptcha-container"></div>
+              <div class="text-danger small mt-1" *ngIf="captchaError">
+                Please complete the CAPTCHA verification.
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-wow w-100 mt-4" [disabled]="loading || form.invalid">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+              {{ loading ? 'Creating...' : 'Create account' }}
+              <i class="bi bi-arrow-right-short ms-1"></i>
+            </button>
+
+            <div class="divider my-4">
+              <span>Already have an account?</span>
+            </div>
+
+            <a routerLink="/login" class="btn btn-outline-wow w-100" routerLinkActive="active">
+              Login
+              <i class="bi bi-box-arrow-in-right ms-1"></i>
+            </a>
+          </form>
+        </div>
+
+        <p class="auth-foot text-center mt-3 mb-0">
+          Protected by reCAPTCHA and modern auth (JWT + refresh token).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

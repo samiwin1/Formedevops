@@ -1,0 +1,148 @@
+<div class="page-header">
+  <div class="page-header-left d-flex align-items-center">
+    <div class="page-header-title">
+      <h5 class="m-b-10">Packs</h5>
+    </div>
+    <ul class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/admin/dashboard">Home</a></li>
+      <li class="breadcrumb-item">Packs</li>
+    </ul>
+  </div>
+  <div class="page-header-right ms-auto">
+    <button class="btn btn-primary" (click)="openCreate()">
+      <i class="feather-plus me-2"></i> Add Pack
+    </button>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="card stretch stretch-full">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <h5 class="card-title">All Packs</h5>
+
+      <!-- ✅ BARRE DE RECHERCHE -->
+      <div class="input-group" style="max-width: 300px;">
+        <span class="input-group-text bg-transparent border-end-0">
+          <i class="feather-search text-muted"></i>
+        </span>
+        <input
+          type="text"
+          class="form-control border-start-0 ps-0"
+          placeholder="Search by name, status..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilter()"
+        />
+        <button *ngIf="searchTerm" class="btn btn-outline-secondary border-start-0"
+          (click)="searchTerm = ''; applyFilter()">
+          <i class="feather-x"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Validity (months)</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredPacks">
+              <td>{{ p.id }}</td>
+              <td><strong>{{ p.name }}</strong></td>
+              <td>{{ p.description }}</td>
+              <td>{{ p.validityMonths }}</td>
+              <td>
+                <!-- ✅ Badge coloré selon statut -->
+                <span class="badge" [ngClass]="p.active ? 'bg-success' : 'bg-secondary'">
+                  {{ p.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-light-brand me-1" (click)="openEdit(p)">
+                  <i class="feather-edit-2"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="confirmDelete(p.id!)">
+                  <i class="feather-trash-2"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredPacks.length === 0 && searchTerm">
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="feather-search me-2"></i>No results for "<strong>{{ searchTerm }}</strong>"
+              </td>
+            </tr>
+            <tr *ngIf="filteredPacks.length === 0 && !searchTerm">
+              <td colspan="6" class="text-center text-muted py-4">No packs found.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="px-3 py-2 text-muted small border-top" *ngIf="searchTerm">
+          {{ filteredPacks.length }} result(s) found out of {{ packs.length }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create / Edit Modal -->
+<div class="modal fade show d-block" *ngIf="showModal" style="background:rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEdit ? 'Edit Pack' : 'New Pack' }}</h5>
+        <button class="btn-close" (click)="showModal = false"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+        <div class="mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" [(ngModel)]="form.name" placeholder="Pack name" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" [(ngModel)]="form.description" rows="3" placeholder="Description"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Validity (months)</label>
+          <input type="number" class="form-control" [(ngModel)]="form.validityMonths" min="1" />
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="form.active" id="activeCheck" />
+          <label class="form-check-label" for="activeCheck">Active</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-light" (click)="showModal = false">Cancel</button>
+        <button class="btn btn-primary" (click)="save()">{{ isEdit ? 'Update' : 'Create' }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade show d-block" *ngIf="showDeleteModal" style="background:rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <i class="feather-alert-triangle fs-1 text-danger"></i>
+        <h5 class="mt-3">Delete Pack?</h5>
+        <p class="text-muted">This action cannot be undone.</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button class="btn btn-light" (click)="showDeleteModal = false">Cancel</button>
+          <button class="btn btn-danger" (click)="doDelete()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

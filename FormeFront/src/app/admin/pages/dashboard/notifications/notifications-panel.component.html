@@ -1,0 +1,77 @@
+<div class="notif-panel">
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <div class="panel-header">
+    <div class="panel-title">
+      <span class="bell">🔔</span>
+      <h3>Notifications</h3>
+      <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </div>
+    <div class="panel-actions">
+      <button class="btn-ghost" (click)="filterUnread = !filterUnread">
+        {{ filterUnread ? 'Show All' : 'Unread Only' }}
+      </button>
+      <button class="btn-ghost" (click)="markAllRead()" *ngIf="unreadCount > 0" [disabled]="bulkActionInProgress">
+        {{ bulkActionInProgress ? 'Marking...' : 'Mark all read' }}
+      </button>
+      <button class="btn-primary" (click)="showForm = !showForm" [disabled]="submitting">
+        {{ showForm ? '✕ Cancel' : '+ New' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- ── Create Form ──────────────────────────────────────────── -->
+  <div class="create-form" *ngIf="showForm">
+    <p class="delivery-hint">
+      Users receive these in the header notification bell. For guaranteed delivery, target a specific user email.
+    </p>
+    <div class="form-row">
+      <input [(ngModel)]="form.title" placeholder="Title" class="input" maxlength="120" />
+      <select [(ngModel)]="form.type" class="select">
+        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+    <textarea [(ngModel)]="form.message" placeholder="Message…" class="textarea" rows="2" maxlength="500"></textarea>
+    <div class="form-row">
+      <input [(ngModel)]="form.targetUserEmail" placeholder="Target email (leave blank to broadcast)" class="input" />
+      <button class="btn-primary" (click)="create()" [disabled]="!form.title.trim() || !form.message.trim() || submitting">
+        {{ submitting ? 'Sending...' : 'Send' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ── List ─────────────────────────────────────────────────── -->
+  <div class="notif-list" *ngIf="!loading; else spinner">
+    <div *ngIf="displayed.length === 0" class="empty-state">
+      {{ filterUnread ? 'No unread notifications 🎉' : 'No notifications yet' }}
+    </div>
+
+    <div
+      *ngFor="let n of displayed; trackBy: trackByNotificationId"
+      class="notif-item"
+      [class.unread]="!n.isRead"
+      (click)="markRead(n)"
+    >
+      <span class="type-icon">{{ typeIcon(n.type) }}</span>
+      <div class="notif-body">
+        <div class="notif-top">
+          <span class="notif-title">{{ n.title }}</span>
+          <span class="notif-badge" [ngClass]="typeClass(n.type)">{{ n.type }}</span>
+          <span class="notif-time">{{ relativeTime(n.createdAt) }}</span>
+        </div>
+        <p class="notif-msg">{{ n.message }}</p>
+        <span class="target" *ngIf="n.targetUserEmail">→ {{ n.targetUserEmail }}</span>
+      </div>
+      <button class="btn-delete" [disabled]="isItemActionInProgress(n.id)" (click)="$event.stopPropagation(); delete(n.id)">
+        {{ isItemActionInProgress(n.id) ? '...' : '✕' }}
+      </button>
+    </div>
+  </div>
+
+  <ng-template #spinner>
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </ng-template>
+
+</div>

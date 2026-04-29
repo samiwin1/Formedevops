@@ -1,0 +1,11 @@
+@if (active) {
+  <div class="agent-thinking-container">
+    @if (useSpinner) {
+      <span class="spinner-border" role="status" aria-label="Generating">
+        <span class="visually-hidden">Generating formation...</span>
+      </span>
+    } @else if (currentFrameUrl) {
+      <img [src]="currentFrameUrl" alt="Agent thinking" class="agent-thinking-frame" />
+    }
+  </div>
+}

@@ -1,0 +1,98 @@
+<section class="formations-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h2>Formation Hub</h2>
+      <p class="section-subtitle">Browse our available formations and start learning</p>
+    </div>
+
+    <div class="row filters-row mb-4 align-items-end">
+      <div class="col-md-4 mb-3 mb-md-0">
+        <label class="form-label">Search</label>
+        <input
+          type="text"
+          class="form-control formations-input"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchInput()"
+          placeholder="Search by title, description..."
+        />
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <label class="form-label">Category</label>
+        <select class="form-select formations-select" [(ngModel)]="category" (ngModelChange)="onFilterChange()">
+          @for (c of categories; track c) {
+            <option [value]="c">{{ c || 'All categories' }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <label class="form-label">Level</label>
+        <select class="form-select formations-select" [(ngModel)]="level" (ngModelChange)="onFilterChange()">
+          @for (l of levels; track l) {
+            <option [value]="l">{{ l || 'All levels' }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-accent" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (error) {
+      <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span>{{ error }}</span>
+        <button class="btn btn-outline-danger btn-sm" (click)="loadFormations()">Retry</button>
+      </div>
+    } @else if (formations.length === 0) {
+      <div class="empty-formations text-center py-5">
+        <p class="text-muted">No formations available at the moment.</p>
+      </div>
+    } @else {
+      <div class="row g-4">
+        @for (formation of formations; track formation.id) {
+          <div class="col-md-6 col-lg-4">
+            <div class="card formation-card h-100">
+              <div class="card-body">
+                <div class="card-badges mb-2 d-flex align-items-center justify-content-between">
+                  <div>
+                    <span class="badge badge-level">{{ formation.level || 'All levels' }}</span>
+                    <span class="badge badge-category">{{ formation.category || 'General' }}</span>
+                  </div>
+                  <a [routerLink]="['/formations', formation.id, 'history']" class="formation-history-icon" title="View my progress">
+                    <i class="bi bi-clock-history"></i>
+                  </a>
+                </div>
+                <h5 class="card-title">{{ formation.title }}</h5>
+                <p class="card-text">
+                  {{ (formation.description || '').slice(0, 120) }}{{ (formation.description || '').length > 120 ? '...' : '' }}
+                </p>
+                <a [routerLink]="['/formations', formation.id]" class="btn btn-formation-cta">
+                  Enter Formation
+                </a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      @if (totalPages > 1) {
+        <nav class="pagination-wrap d-flex justify-content-center mt-5" aria-label="Pagination">
+          <ul class="pagination pagination-formations">
+            <li class="page-item" [class.disabled]="page <= 0">
+              <button type="button" class="page-link" (click)="goToPage(page - 1)">Previous</button>
+            </li>
+            @for (p of [].constructor(totalPages); track $index) {
+              <li class="page-item" [class.active]="$index === page">
+                <button type="button" class="page-link" (click)="goToPage($index)">{{ $index + 1 }}</button>
+              </li>
+            }
+            <li class="page-item" [class.disabled]="page >= totalPages - 1">
+              <button type="button" class="page-link" (click)="goToPage(page + 1)">Next</button>
+            </li>
+          </ul>
+        </nav>
+      }
+    }
+  </div>
+</section>

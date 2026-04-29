@@ -1,0 +1,196 @@
+﻿.learner-page-bg {
+  background: #f3f5f9;
+  min-height: calc(100vh - 72px);
+  padding: 0.5rem 0 1.5rem;
+}
+
+.front-office-page {
+  color: #1f2937;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.page-surface {
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+}
+
+.summary-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  border: 1px solid #d2dced;
+  border-radius: 12px;
+  padding: 0.95rem 1rem;
+  min-height: 92px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.summary-card .label {
+  color: #4f6789;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.summary-card .label.with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.summary-card .label.with-icon i {
+  color: #2f5f9a;
+  font-size: 0.85rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 0.35rem;
+  background: #e6effa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card .value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #071a3a;
+  letter-spacing: 0.01em;
+}
+
+.metric-value {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.panel {
+  border: 1px solid #d3ddec;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
+.panel-head {
+  padding: 0.85rem 1.05rem;
+  border-bottom: 1px solid #d7e0ef;
+  background: linear-gradient(180deg, #fbfdff 0%, #f4f8fd 100%);
+}
+
+.panel-head h5 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.12rem;
+  line-height: 1.2;
+  color: #16335a;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.panel-head h5 i {
+  color: #4d6f9c;
+  font-size: 1.05rem;
+}
+
+.table {
+  margin: 0;
+}
+
+.table thead th {
+  background: #f8fafc;
+  color: #16335a;
+  border-bottom: 1px solid #d7e0ef;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+.table tbody th,
+.table tbody td {
+  border-color: #dfe6f2;
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+  font-size: 0.93rem;
+}
+
+.table tbody th {
+  color: #16335a;
+  font-weight: 700;
+}
+
+.table tbody td {
+  color: #334e73;
+}
+
+.badge.bg-secondary {
+  background: #5b7091 !important;
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 0.28rem 0.48rem;
+  border-radius: 999px;
+}
+
+.badge.bg-success {
+  background: #1f9d59 !important;
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 0.28rem 0.48rem;
+  border-radius: 999px;
+}
+
+.calendar-wrap {
+  padding: 0;
+}
+
+.calendar-day {
+  border-top: 1px solid #e2e8f3;
+  padding: 0.85rem 1rem;
+  margin: 0;
+  background: #fff;
+}
+
+.day-title {
+  font-weight: 700;
+  color: #16335a;
+  margin-bottom: 0.45rem;
+}
+
+.session-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed #dce4f1;
+  padding-top: 0.45rem;
+  margin-top: 0.45rem;
+  gap: 0.75rem;
+}
+
+.session-item:first-of-type {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.session-time {
+  font-weight: 600;
+  color: #16335a;
+}
+
+.session-meta {
+  color: #587091;
+  font-size: 0.85rem;
+}
+
+.session-item .btn {
+  border-radius: 0.55rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+}
+
+@media (max-width: 768px) {
+  .summary-card {
+    min-height: auto;
+  }
+}

@@ -1,0 +1,54 @@
+<div class="insights-card">
+
+  <div class="insights-header">
+    <div class="insights-header-left">
+      <div class="ai-badge">
+        <span class="ai-dot"></span>
+        AI
+      </div>
+      <div>
+        <h2 class="insights-title">AI Platform Insights</h2>
+        <p class="insights-subtitle">Automated analysis of your platform data</p>
+      </div>
+    </div>
+    <div class="insights-actions">
+      <span class="dummy-tag" *ngIf="error">
+        <i class="bi bi-stars"></i> Demo insights
+      </span>
+      <button class="btn-refresh-insights" (click)="refresh()" [disabled]="loading" title="Refresh insights">
+        <i class="bi bi-arrow-clockwise" [class.spin]="loading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="insights-loading">
+    <div class="thinking-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <p>Analyzing platform data...</p>
+  </div>
+
+  <!-- Insights -->
+  <div *ngIf="!loading" class="insights-body">
+    <div
+      class="insight-item"
+      *ngFor="let item of displayInsights; let i = index"
+      [style.animation-delay]="(i * 80) + 'ms'">
+      <div class="insight-icon">{{ item.icon }}</div>
+      <div class="insight-content">
+        <h4 class="insight-title">{{ item.title }}</h4>
+        <p class="insight-text">{{ item.text }}</p>
+      </div>
+    </div>
+
+    <button
+      *ngIf="parsedInsights.length > 2"
+      class="btn-toggle"
+      (click)="toggle()">
+      <i class="bi" [ngClass]="expanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+      {{ expanded ? 'Show less' : 'Show ' + (parsedInsights.length - 2) + ' more insights' }}
+    </button>
+  </div>
+
+</div>

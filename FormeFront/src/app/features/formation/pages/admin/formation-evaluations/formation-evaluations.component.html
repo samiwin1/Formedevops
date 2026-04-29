@@ -1,0 +1,113 @@
+<div class="eval-admin">
+  <header class="eval-admin-header">
+    <nav class="breadcrumb-nav">
+      <a [routerLink]="['/admin/formations']">Formations</a>
+      <span class="sep">/</span>
+      <span class="current">{{ formation?.title || '…' }}</span>
+      <span class="sep">/</span>
+      <span class="current">Evaluations</span>
+    </nav>
+    <div class="eval-admin-title-row">
+      <h1 class="eval-admin-title">Evaluations</h1>
+      <button type="button" class="btn-add-eval" (click)="openAddEvaluation()">
+        <i class="bi bi-plus-lg"></i> Add evaluation
+      </button>
+    </div>
+  </header>
+
+  @if (loading) {
+    <div class="eval-admin-loading">
+      <span class="spinner"></span>
+      <p>Loading…</p>
+    </div>
+  } @else if (error) {
+    <div class="eval-admin-error">
+      <span class="icon">!</span>
+      <span>{{ error }}</span>
+    </div>
+  } @else if (evaluations.length === 0) {
+    <div class="eval-admin-empty">
+      <p class="empty-title">No evaluations</p>
+      <p class="empty-desc">Add your first quiz evaluation.</p>
+      <button type="button" class="btn-add-empty" (click)="openAddEvaluation()">
+        <i class="bi bi-plus-lg"></i> Add evaluation
+      </button>
+      <a [routerLink]="['/admin/formations']" class="empty-link">← Formations</a>
+    </div>
+  } @else {
+    <div class="eval-admin-table-wrap">
+      <table class="eval-admin-table">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-title">Title</th>
+            <th class="col-pass">Passing %</th>
+            <th class="col-attempts">Max attempts</th>
+            <th class="col-type">Type</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (eval of evaluations; track eval.id; let i = $index) {
+            <tr>
+              <td class="col-num">{{ i + 1 }}</td>
+              <td class="col-title">
+                <span class="cell-title">{{ eval.title }}</span>
+              </td>
+              <td class="col-pass">{{ eval.passing_score ?? 75 }}%</td>
+              <td class="col-attempts">{{ eval.max_attempts ?? 3 }}</td>
+              <td class="col-type">{{ eval.evaluation_type || '—' }}</td>
+              <td class="col-actions">
+                <button type="button" class="btn-row btn-edit" (click)="openEditEvaluation(eval)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn-row btn-delete" (click)="delete(eval.id!)" title="Delete">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="eval-admin-count">{{ evaluations.length }} evaluation{{ evaluations.length !== 1 ? 's' : '' }}</p>
+  }
+
+  @if (showEditModal) {
+    <div class="modal-backdrop" (click)="closeEditModal()"></div>
+    <div class="modal-panel modal-panel-lg" role="dialog" aria-labelledby="editEvalTitle">
+      <div class="modal-header">
+        <h2 id="editEvalTitle">{{ editingEval ? 'Edit evaluation' : 'Add evaluation' }}</h2>
+        <button type="button" class="modal-close" (click)="closeEditModal()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="evalTitle">Title</label>
+            <input id="evalTitle" type="text" class="form-control" [(ngModel)]="editForm.title" placeholder="Quiz title" />
+          </div>
+          <div class="form-group form-group-sm">
+            <label for="evalPass">Passing %</label>
+            <input id="evalPass" type="number" class="form-control" [(ngModel)]="editForm.passing_score" min="0" max="100" />
+          </div>
+          <div class="form-group form-group-sm">
+            <label for="evalAttempts">Max attempts</label>
+            <input id="evalAttempts" type="number" class="form-control" [(ngModel)]="editForm.max_attempts" min="1" max="10" />
+          </div>
+        </div>
+        <div class="form-group">
+          <app-question-builder [(questions)]="editQuestions"></app-question-builder>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeEditModal()">Cancel</button>
+        <button type="button" class="btn-primary" (click)="saveEvaluation()" [disabled]="saving || !editForm.title?.trim()">
+          @if (saving) { <span class="spinner-sm"></span> }
+          {{ editingEval ? 'Save' : 'Add' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

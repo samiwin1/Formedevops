@@ -1,0 +1,83 @@
+<div class="catalog-page">
+  <header class="catalog-header">
+    <h1 class="catalog-title">
+      <i class="feather-package catalog-title-icon"></i>
+      Product Catalog
+    </h1>
+    <a routerLink="/admin/products/create" class="btn-add">
+      <i class="feather-plus"></i>
+      Add product
+    </a>
+  </header>
+
+  <div class="search-bar-wrap">
+    <i class="feather-search search-icon"></i>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by title, formation, price, ID..."
+      [(ngModel)]="searchTerm"
+    />
+  </div>
+
+  @if (deleteError) {
+    <div class="alert-banner alert-warning">{{ deleteError }}</div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  } @else if (error) {
+    <div class="alert-banner alert-danger">
+      <span>{{ error }}</span>
+      <button type="button" class="btn-retry" (click)="load()">Retry</button>
+    </div>
+  } @else if (filteredProducts.length === 0) {
+    <div class="empty-state">
+      <p>No products found.</p>
+      @if (products.length > 0) {
+        <span class="text-muted">Try adjusting your search.</span>
+      }
+    </div>
+  } @else {
+    <div class="cards-grid">
+      @for (p of filteredProducts; track p.idProduct) {
+        <div class="product-card">
+          <div class="card-top">
+            <h3 class="card-title">{{ p.formationTitleSnapshot || 'Product #' + p.idProduct }}</h3>
+            <span class="status-badge" [class.published]="p.isAvailable" [class.draft]="!p.isAvailable">
+              {{ p.isAvailable ? 'Available' : 'Disabled' }}
+            </span>
+          </div>
+          <div class="card-details">
+            <div class="detail-box">
+              <span class="detail-label">ID</span>
+              <span class="detail-value">#{{ p.idProduct }}</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-label">Price</span>
+              <span class="detail-value">{{ p.price }} {{ p.currency }}</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <a [routerLink]="['/admin/products/edit', p.idProduct]" class="btn-card btn-edit">Edit</a>
+            <button
+              type="button"
+              class="btn-card btn-delete"
+              [disabled]="deletingId === p.idProduct"
+              (click)="deleteProduct(p)"
+            >
+              @if (deletingId === p.idProduct) {
+                <span class="spinner-sm"></span> Deleting...
+              } @else {
+                Delete
+              }
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

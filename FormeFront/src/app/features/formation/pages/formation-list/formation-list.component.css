@@ -1,0 +1,182 @@
+/* Formation Hub – follows Mentor template (accent: green/teal), no blue */
+
+.formations-section {
+  background-color: var(--background-color);
+  color: var(--default-color);
+}
+
+.formations-section .section-header h2 {
+  color: var(--heading-color);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.formations-section .section-subtitle {
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Search & filters – template-style inputs */
+.formations-section .form-label {
+  color: var(--heading-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+
+.formations-section .formations-input,
+.formations-section .formations-select {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formations-section .formations-input:focus,
+.formations-section .formations-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-color), transparent 85%);
+  outline: 0;
+}
+
+/* Cards */
+.formations-section .formation-card {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s;
+  background: var(--surface-color);
+}
+
+.formations-section .formation-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  border-color: color-mix(in srgb, var(--accent-color), transparent 70%);
+}
+
+.formations-section .formation-card .card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.formations-section .formation-card .card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.formations-section .formation-history-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.formations-section .formation-history-icon:hover {
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color), transparent 90%);
+}
+
+.formations-section .formation-history-icon i {
+  font-size: 1.15rem;
+}
+
+.formations-section .formation-card .badge-level {
+  background-color: color-mix(in srgb, var(--heading-color), transparent 85%);
+  color: var(--heading-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+}
+
+.formations-section .formation-card .badge-category {
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+}
+
+.formations-section .formation-card .card-title {
+  color: var(--heading-color);
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0.75rem 0 0.5rem;
+  line-height: 1.3;
+}
+
+.formations-section .formation-card .card-text {
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+
+/* CTA button – template accent (green), no blue */
+.formations-section .btn-formation-cta {
+  display: inline-block;
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-color);
+  color: var(--contrast-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.formations-section .btn-formation-cta:hover {
+  background: color-mix(in srgb, var(--accent-color), black 10%);
+  color: var(--contrast-color);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color), transparent 50%);
+}
+
+/* Loading spinner – accent color */
+.formations-section .text-accent {
+  color: var(--accent-color);
+}
+
+/* Empty state */
+.formations-section .empty-formations .text-muted {
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+}
+
+/* Pagination – template accent */
+.formations-section .pagination-formations .page-link {
+  color: var(--default-color);
+  border-color: #dee2e6;
+  padding: 0.5rem 0.85rem;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.formations-section .pagination-formations .page-link:hover {
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color), transparent 92%);
+  border-color: color-mix(in srgb, var(--accent-color), transparent 70%);
+}
+
+.formations-section .pagination-formations .page-item.active .page-link {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--contrast-color);
+}
+
+.formations-section .pagination-formations .page-item.disabled .page-link {
+  color: #adb5bd;
+  pointer-events: none;
+}

@@ -1,0 +1,24 @@
+# Node / Angular
+node_modules/
+.angular/
+dist/
+coverage/
+
+# Java / Maven
+target/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Archives and generated bundles
+*.zip
+*.jar
+
+# Runtime/generated files
+generated-certificates/

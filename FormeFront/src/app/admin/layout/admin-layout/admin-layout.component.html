@@ -1,0 +1,19 @@
+<div class="admin-wrapper">
+  <app-navbar class="admin-sidebar"></app-navbar>
+
+  <div class="admin-body">
+    <app-header></app-header>
+
+    <main class="nxl-container">
+      <div class="nxl-content">
+        <div class="main-content">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </main>
+
+    @if (!isFormationRoute()) {
+      <app-footer></app-footer>
+    }
+  </div>
+</div>

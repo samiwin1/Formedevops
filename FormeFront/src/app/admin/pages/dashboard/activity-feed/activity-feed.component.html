@@ -1,0 +1,17 @@
+<div class="feed-card">
+  <h3 class="section-title">Live Activity Feed</h3>
+  <p class="section-sub">Cross-domain platform events</p>
+
+  <div class="feed-list">
+    <div class="feed-item" *ngFor="let item of items">
+      <div class="feed-icon" [ngClass]="item.type">
+        <i class="bi" [ngClass]="item.icon"></i>
+      </div>
+
+      <div class="feed-body">
+        <p class="feed-title">{{ item.title }}</p>
+        <p class="feed-meta">{{ item.meta }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,118 @@
+.charts-root {
+  margin-top: 6px;
+}
+
+.benchmark-banner {
+  background: #ffffff;
+  border: 1px solid #eceff5;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  color: #334155;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.benchmark-banner i {
+  margin-right: 8px;
+  color: #6366f1;
+}
+
+.above {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.below {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.chart-card.wide {
+  grid-column: 1 / -1;
+}
+
+.chart-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.chart-sub {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.chart-wrap {
+  position: relative;
+  height: 240px;
+}
+
+.chart-wrap.large {
+  height: 260px;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.donut-legend {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.legend-item.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.legend-item.red {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.legend-item.amber {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+@media (max-width: 1200px) {
+  .charts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chart-card.wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,258 @@
+<app-navbar></app-navbar>
+<app-header></app-header>
+<div class="page">
+  <div class="cardx">
+    <!-- Header -->
+    <div class="top">
+      <div class="title">
+        <div class="badge">SUPER_ADMIN</div>
+        <div>
+          <h2>Admin Management</h2>
+          <p>Create, search, filter, and control admin accounts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <button class="btnx pdf" (click)="exportPdf()" [disabled]="loading || filtered.length === 0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          style="margin-right:5px; vertical-align:middle;">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Export PDF
+      </button>
+
+      <button class="btnx ghost" (click)="refresh()" [disabled]="loading">
+        <span class="dot" [class.on]="!loading"></span>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alertx">{{ error }}</div>
+
+    <!-- Create form -->
+    <div class="section">
+      <div class="sectionHead">
+        <h3>Create an admin</h3>
+        <div class="hint">Only SUPER_ADMIN can create and manage admins.</div>
+      </div>
+
+      <form class="formx" [formGroup]="form" (ngSubmit)="create()">
+        <div class="grid">
+          <div class="field">
+            <label>First name</label>
+            <input class="inputx" formControlName="firstName" placeholder="e.g. Sami" />
+            <small class="err" *ngIf="form.controls.firstName.touched && form.controls.firstName.invalid">
+              Min 2 characters
+            </small>
+          </div>
+
+          <div class="field">
+            <label>Last name</label>
+            <input class="inputx" formControlName="lastName" placeholder="e.g. Bouraoui" />
+            <small class="err" *ngIf="form.controls.lastName.touched && form.controls.lastName.invalid">
+              Min 2 characters
+            </small>
+          </div>
+
+          <div class="field">
+            <label>Email</label>
+            <input class="inputx" formControlName="email" placeholder="name@company.com" />
+            <small class="err" *ngIf="form.controls.email.touched && form.controls.email.invalid">
+              Enter a valid email
+            </small>
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <input class="inputx" type="password" formControlName="password" placeholder="Min 10 chars" />
+            <small class="err" *ngIf="form.controls.password.touched && form.controls.password.invalid">
+              Min 10 characters
+            </small>
+          </div>
+
+          <div class="field">
+            <label>Profession</label>
+            <select class="inputx" formControlName="profession">
+              <option *ngFor="let p of professions" [value]="p">{{ p }}</option>
+            </select>
+          </div>
+
+          <div class="field actions">
+            <button class="btnx primary" [disabled]="saving || form.invalid">
+              <span class="spinner" *ngIf="saving"></span>
+              {{ saving ? 'Creating…' : 'Create Admin' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search">
+        <span class="icon">⌕</span>
+        <input
+          class="inputx"
+          [formControl]="qCtrl"
+          placeholder="Search by name or email…"
+        />
+        <button class="btnx ghost sm" *ngIf="qCtrl.value" (click)="qCtrl.setValue('')">Clear</button>
+      </div>
+
+      <div class="filters">
+        <select class="inputx sm" [formControl]="professionCtrl">
+          <option value="ALL">All professions</option>
+          <option *ngFor="let p of professions" [value]="p">{{ p }}</option>
+        </select>
+
+        <select class="inputx sm" [formControl]="statusCtrl">
+          <option value="ALL">All status</option>
+          <option value="ACTIVE">Active</option>
+          <option value="DISABLED">Disabled</option>
+        </select>
+
+        <select class="inputx sm" [formControl]="sortCtrl">
+          <option value="name_asc">Name (A → Z)</option>
+          <option value="name_desc">Name (Z → A)</option>
+          <option value="email_asc">Email (A → Z)</option>
+          <option value="email_desc">Email (Z → A)</option>
+          <option value="profession_asc">Profession (A → Z)</option>
+          <option value="profession_desc">Profession (Z → A)</option>
+          <option value="status_asc">Status (Active first)</option>
+          <option value="status_desc">Status (Disabled first)</option>
+        </select>
+      </div>
+
+      <div class="meta">
+        <div class="pill">
+          <span class="k">Total</span>
+          <span class="v">{{ admins.length }}</span>
+        </div>
+        <div class="pill">
+          <span class="k">Shown</span>
+          <span class="v">{{ filtered.length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="tableWrap">
+      <div *ngIf="loading" class="loading">Loading…</div>
+
+      <table class="tablex" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Profession</th>
+            <th>Status</th>
+            <th class="end">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let a of paged">
+            <td>
+              <div class="who">
+                <div class="avatar">{{ initials(a) }}</div>
+                <div>
+                  <div class="whoName">{{ a.firstName }} {{ a.lastName }}</div>
+                  <div class="whoSub">ID: {{ a.id }}</div>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <div class="emailCell">
+                <span class="emailText">{{ a.email }}</span>
+                <button class="chip" (click)="copy(a.email)">Copy</button>
+              </div>
+              <div class="toast" *ngIf="toast === a.email">Copied ✓</div>
+            </td>
+
+            <td><span class="tag">{{ a.profession }}</span></td>
+
+            <td>
+              <span class="status" [class.off]="!isActive(a)">
+                {{ isActive(a) ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+
+            <td class="end">
+              <button class="link danger" (click)="openDisable(a)" [disabled]="!isActive(a)">
+                Disable
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="paged.length === 0">
+            <td colspan="5" class="empty">
+              No admins match your filters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pager" *ngIf="filtered.length > 0">
+        <div class="rows">
+          <span>Rows</span>
+          <select class="inputx sm" [formControl]="pageSizeCtrl">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+          </select>
+        </div>
+
+        <div class="nav">
+          <button class="btnx ghost sm" (click)="prev()" [disabled]="page === 1">Prev</button>
+          <div class="pageInfo">
+            Page <strong>{{ page }}</strong> / {{ totalPages }}
+          </div>
+          <button class="btnx ghost sm" (click)="next()" [disabled]="page === totalPages">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modalBack" *ngIf="confirmOpen" (click)="closeConfirm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modalHead">
+        <div class="modalIcon">!</div>
+        <div>
+          <div class="modalTitle">Disable admin?</div>
+          <div class="modalSub">
+            This will prevent the admin from accessing the dashboard.
+          </div>
+        </div>
+      </div>
+
+      <div class="modalBody">
+        <div class="modalLine">
+          <span class="k">Email</span>
+          <span class="v">{{ selected?.email }}</span>
+        </div>
+        <div class="modalLine">
+          <span class="k">Name</span>
+          <span class="v">{{ selected?.firstName }} {{ selected?.lastName }}</span>
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button class="btnx ghost" (click)="closeConfirm()">Cancel</button>
+        <button class="btnx danger" (click)="confirmDisable()" [disabled]="disabling">
+          <span class="spinner" *ngIf="disabling"></span>
+          {{ disabling ? 'Disabling…' : 'Disable' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

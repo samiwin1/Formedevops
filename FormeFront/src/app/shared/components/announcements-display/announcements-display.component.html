@@ -1,0 +1,97 @@
+<div class="announcements-container">
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="announcements-error">
+    <i class="bi bi-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading && announcements.length === 0" class="announcements-loading">
+    <div class="spinner"></div>
+    <p>Loading announcements...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && announcements.length === 0 && !errorMessage" class="announcements-empty">
+    <i class="bi bi-megaphone"></i>
+    <p>No announcements available</p>
+  </div>
+
+  <!-- Announcements List -->
+  <div *ngIf="announcements.length > 0" class="announcements-list">
+    <div *ngFor="let announcement of announcements; trackBy: trackByAnnouncementId"
+         class="announcement-card"
+         (click)="selectAnnouncement(announcement)"
+         role="button"
+         tabindex="0"
+         (keyup.enter)="selectAnnouncement(announcement)">
+      
+      <div class="announcement-header">
+        <div class="announcement-meta">
+          <span class="announcement-pin" *ngIf="announcement.pinned" title="Pinned">
+            <i class="bi bi-pin-fill"></i>
+          </span>
+          <span class="announcement-date">
+            {{ formatDate(announcement.publishedAt || announcement.createdAt) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="announcement-body">
+        <h3 class="announcement-title">{{ announcement.title }}</h3>
+        <p class="announcement-preview">{{ getTextContent(announcement.content) | slice: 0:150 }}{{ getTextContent(announcement.content).length > 150 ? '...' : '' }}</p>
+      </div>
+
+      <div class="announcement-footer">
+        <span class="announcement-creator" *ngIf="announcement.createdByEmail">
+          <i class="bi bi-person"></i>
+          {{ announcement.createdByEmail }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div *ngIf="selectedAnnouncement" class="announcement-modal" (click)="closeDetail()">
+    <div class="announcement-modal-backdrop"></div>
+    <div class="announcement-modal-content" (click)="$event.stopPropagation()">
+      <div class="announcement-modal-header">
+        <h2>{{ selectedAnnouncement.title }}</h2>
+        <button class="announcement-close-btn" (click)="closeDetail()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="announcement-modal-body">
+        <div class="announcement-modal-meta">
+          <div class="meta-item">
+            <span class="meta-label">Published:</span>
+            <span>{{ formatDate(selectedAnnouncement.publishedAt || selectedAnnouncement.createdAt) }}</span>
+          </div>
+          <div class="meta-item" *ngIf="selectedAnnouncement.createdByEmail">
+            <span class="meta-label">From:</span>
+            <span>{{ selectedAnnouncement.createdByEmail }}</span>
+          </div>
+          <div class="meta-item" *ngIf="selectedAnnouncement.pinned">
+            <span class="meta-label">
+              <i class="bi bi-pin-fill"></i>
+              Pinned
+            </span>
+          </div>
+        </div>
+
+        <div class="announcement-modal-text">
+          <p>{{ getTextContent(selectedAnnouncement.content) }}</p>
+          <img *ngIf="getImageUrl(selectedAnnouncement.content)"
+               [src]="getImageUrl(selectedAnnouncement.content)"
+               alt="Announcement image"
+               style="width:100%; max-height:300px; object-fit:cover; border-radius:8px; margin-top:12px;" />
+        </div>
+      </div>
+
+      <div class="announcement-modal-footer">
+        <button class="btn-close" (click)="closeDetail()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

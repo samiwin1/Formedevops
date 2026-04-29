@@ -1,0 +1,121 @@
+﻿<section class="learner-page-bg">
+  <div class="container py-4 front-office-page">
+    <div class="page-surface p-3 p-md-4">
+      <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="summary-card">
+            <div class="label with-icon"><i class="feather-file-text"></i><span>Written Exam</span></div>
+            <div class="value metric-value">
+              {{ examStatus?.writtenScore ?? '-' }}
+              <span class="ms-2 badge" [ngClass]="examStatus?.writtenPassed ? 'bg-success' : 'bg-secondary'">
+                {{ examStatus?.writtenPassed ? 'Passed' : 'Unknown' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="summary-card">
+            <div class="label with-icon"><i class="feather-mic"></i><span>Oral Exam Status</span></div>
+            <div class="value metric-value">{{ examStatus?.oralStatus || 'NOT_ASSIGNED' }}</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="summary-card">
+            <div class="label with-icon"><i class="feather-award"></i><span>Final Certification</span></div>
+            <div class="value metric-value">{{ certificationStatus?.status || 'IN_PROGRESS' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card panel mb-4">
+        <div class="panel-head">
+          <h5><i class="feather-activity me-2"></i>My Exam Workflow Status</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <tbody>
+              <tr>
+                <th style="width: 260px;">Written Score</th>
+                <td>{{ examStatus?.writtenScore ?? '-' }}</td>
+              </tr>
+              <tr>
+                <th>Written Passed</th>
+                <td>{{ examStatus?.writtenPassed === true ? 'Yes' : examStatus?.writtenPassed === false ? 'No' : '-' }}</td>
+              </tr>
+              <tr>
+                <th>Oral Status</th>
+                <td>{{ examStatus?.oralStatus ?? 'NOT_ASSIGNED' }}</td>
+              </tr>
+              <tr>
+                <th>Oral Date</th>
+                <td>{{ examStatus?.oralScheduledAt ? (examStatus?.oralScheduledAt | date:'short') : '-' }}</td>
+              </tr>
+              <tr>
+                <th>Oral Score</th>
+                <td>{{ examStatus?.oralScore ?? '-' }}</td>
+              </tr>
+              <tr>
+                <th>Final Status</th>
+                <td>{{ certificationStatus?.status ?? 'IN_PROGRESS' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card panel mb-4">
+        <div class="panel-head">
+          <h5><i class="feather-shield me-2"></i>My Certificates</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Certificate Number</th>
+                <th>Final Score</th>
+                <th>Issued At</th>
+                <th>Status</th>
+                <th>PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of myIssuedCertifications">
+                <td>{{ c.certificateNumber }}</td>
+                <td>{{ c.finalScore }}</td>
+                <td>{{ c.issuedAt | date:'short' }}</td>
+                <td>{{ c.status }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" (click)="downloadPdf(c.id)">Download</button>
+                </td>
+              </tr>
+              <tr *ngIf="!myIssuedCertifications.length && !loading">
+                <td colspan="5" class="text-muted">No issued certifications yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel-head">
+          <h5><i class="feather-calendar me-2"></i>My Oral Session Calendar</h5>
+        </div>
+        <div class="calendar-wrap">
+          <div class="calendar-day" *ngFor="let day of calendarDays">
+            <div class="day-title">{{ day.dateLabel }}</div>
+            <div class="session-item" *ngFor="let session of day.sessions">
+              <div>
+                <div class="session-time">{{ session.scheduledAt | date:'shortTime' }}</div>
+                <div class="session-meta">Session #{{ session.id }} | {{ session.status }} | {{ session.meetingProvider }}</div>
+              </div>
+              <a [href]="session.meetingLink" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">Join</a>
+            </div>
+          </div>
+          <div class="text-muted px-3 pb-3" *ngIf="!calendarDays.length && !loading">No oral sessions assigned.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

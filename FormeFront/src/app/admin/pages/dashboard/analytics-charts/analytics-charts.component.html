@@ -1,0 +1,175 @@
+<div class="charts-section">
+
+  <!-- Section Header -->
+  <div class="charts-header">
+    <div class="charts-header-left">
+      <i class="bi bi-bar-chart-line-fill"></i>
+      <div>
+        <h2 class="charts-title">Platform Analytics</h2>
+        <p class="charts-subtitle">Formation & assessment performance overview</p>
+      </div>
+    </div>
+    <span class="dummy-badge" *ngIf="error">
+      <i class="bi bi-database-slash"></i> Demo data
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="charts-loading">
+    <div class="loading-spinner"></div>
+    <span>Loading analytics...</span>
+  </div>
+
+  <div *ngIf="!loading" class="charts-body">
+
+    <!-- KPI Row -->
+    <div class="kpi-row">
+
+      <!-- Completion Rate Donut -->
+      <div class="kpi-card">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 100 100" class="donut-svg">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="10"/>
+            <circle
+              cx="50" cy="50" r="40"
+              fill="none"
+              stroke="#6366f1"
+              stroke-width="10"
+              stroke-linecap="round"
+              [attr.stroke-dasharray]="circumference"
+              [attr.stroke-dashoffset]="dashOffset(completionRate)"
+              transform="rotate(-90 50 50)"
+              class="donut-progress"
+            />
+            <text x="50" y="45" text-anchor="middle" class="donut-pct">{{ completionRate }}%</text>
+            <text x="50" y="60" text-anchor="middle" class="donut-label">Complete</text>
+          </svg>
+        </div>
+        <div class="kpi-meta">
+          <p class="kpi-title">Completion Rate</p>
+          <p class="kpi-detail">{{ totalCompleted }} / {{ totalStarted }} learners</p>
+        </div>
+      </div>
+
+      <!-- Pass Rate Donut -->
+      <div class="kpi-card">
+        <div class="donut-wrap">
+          <svg viewBox="0 0 100 100" class="donut-svg">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="10"/>
+            <circle
+              cx="50" cy="50" r="40"
+              fill="none"
+              stroke="#10b981"
+              stroke-width="10"
+              stroke-linecap="round"
+              [attr.stroke-dasharray]="circumference"
+              [attr.stroke-dashoffset]="dashOffset(passRate)"
+              transform="rotate(-90 50 50)"
+              class="donut-progress"
+            />
+            <text x="50" y="45" text-anchor="middle" class="donut-pct">{{ passRate }}%</text>
+            <text x="50" y="60" text-anchor="middle" class="donut-label">Pass Rate</text>
+          </svg>
+        </div>
+        <div class="kpi-meta">
+          <p class="kpi-title">Exam Pass Rate</p>
+          <p class="kpi-detail">Avg score: {{ avgScore }}/100</p>
+        </div>
+      </div>
+
+      <!-- Summary Tiles -->
+      <div class="summary-tiles">
+        <div class="summary-tile indigo">
+          <i class="bi bi-people-fill"></i>
+          <div>
+            <span class="tile-val">{{ totalStarted }}</span>
+            <span class="tile-lbl">Enrolled</span>
+          </div>
+        </div>
+        <div class="summary-tile green">
+          <i class="bi bi-patch-check-fill"></i>
+          <div>
+            <span class="tile-val">{{ totalCompleted }}</span>
+            <span class="tile-lbl">Completed</span>
+          </div>
+        </div>
+        <div class="summary-tile amber">
+          <i class="bi bi-pencil-fill"></i>
+          <div>
+            <span class="tile-val">{{ stats?.assessmentSuccess?.totalAttempts ?? 0 }}</span>
+            <span class="tile-lbl">Exam Attempts</span>
+          </div>
+        </div>
+        <div class="summary-tile purple">
+          <i class="bi bi-trophy-fill"></i>
+          <div>
+            <span class="tile-val">{{ stats?.assessmentSuccess?.passedAttempts ?? 0 }}</span>
+            <span class="tile-lbl">Passed Exams</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bar Charts Row -->
+    <div class="bar-charts-row">
+
+      <!-- Top Completed Formations -->
+      <div class="bar-chart-card">
+        <div class="bar-chart-header green-accent">
+          <i class="bi bi-graph-up-arrow"></i>
+          <h3>Top Completed Formations</h3>
+        </div>
+        <div class="bar-list">
+          <div class="bar-item" *ngFor="let f of topCompleted">
+            <div class="bar-label-row">
+              <span class="bar-name" [title]="f.formationTitle">{{ f.formationTitle }}</span>
+              <span class="bar-rate green">{{ f.rate }}%</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill green-fill" [style.width.%]="barWidth(f.count)">
+                <span class="bar-count">{{ f.count }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="topCompleted.length === 0" class="bar-empty">No data available</div>
+        </div>
+      </div>
+
+      <!-- Top Abandoned Formations -->
+      <div class="bar-chart-card">
+        <div class="bar-chart-header orange-accent">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <h3>High Drop-off Formations</h3>
+        </div>
+        <div class="bar-list">
+          <div class="bar-item" *ngFor="let f of topAbandoned">
+            <div class="bar-label-row">
+              <span class="bar-name" [title]="f.formationTitle">{{ f.formationTitle }}</span>
+              <span class="bar-rate orange">{{ f.rate }}% done</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill orange-fill" [style.width.%]="f.rate">
+                <span class="bar-count">{{ f.count }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="topAbandoned.length === 0" class="bar-empty">
+            <i class="bi bi-check-circle text-success"></i> No drop-off issues
+          </div>
+        </div>
+
+        <!-- High Failure Evals -->
+        <div *ngIf="highFailureEvals.length > 0" class="failure-evals">
+          <p class="failure-evals-title"><i class="bi bi-x-circle-fill"></i> High Failure Evaluations</p>
+          <div class="failure-eval-item" *ngFor="let e of highFailureEvals">
+            <span class="eval-name">{{ e.evaluationTitle }}</span>
+            <span class="eval-rate red">{{ e.failureRate }}% fail</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

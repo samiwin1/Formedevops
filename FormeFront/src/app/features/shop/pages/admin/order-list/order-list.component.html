@@ -1,0 +1,159 @@
+<div class="orders-page container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="orders-page__title mb-0">Orders</h2>
+    <button type="button" class="btn btn-outline-primary btn-sm" (click)="load()" [disabled]="loading">
+      <i class="bi bi-arrow-clockwise"></i> Refresh
+    </button>
+  </div>
+
+  @if (loading) {
+    <div class="orders-page__loading text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+      <p class="mt-3 text-muted">Loading orders...</p>
+    </div>
+  } @else if (error) {
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <span class="flex-grow-1">{{ error }}</span>
+      <button class="btn btn-outline-danger btn-sm" (click)="load()">Retry</button>
+    </div>
+  } @else {
+    <!-- Statistics cards -->
+    <div class="orders-stats row g-3 mb-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="orders-stats__card orders-stats__card--orders">
+          <div class="orders-stats__card-icon">
+            <i class="bi bi-receipt-cutoff"></i>
+          </div>
+          <div class="orders-stats__card-body">
+            <span class="orders-stats__card-label">Total orders</span>
+            <span class="orders-stats__card-value">{{ orders.length }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="orders-stats__card orders-stats__card--revenue">
+          <div class="orders-stats__card-icon">
+            <i class="bi bi-currency-exchange"></i>
+          </div>
+          <div class="orders-stats__card-body">
+            <span class="orders-stats__card-label">Total revenue</span>
+            <span class="orders-stats__card-value">{{ totalRevenue | number }} TND</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 col-lg-4">
+        <div class="orders-stats__card orders-stats__card--avg">
+          <div class="orders-stats__card-icon">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <div class="orders-stats__card-body">
+            <span class="orders-stats__card-label">Average order</span>
+            <span class="orders-stats__card-value">{{ (orders.length > 0 ? totalRevenue / orders.length : 0) | number:'1.0-0' }} TND</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 5 products -->
+    @if (topProducts.length > 0) {
+      <div class="orders-top-products card shadow-sm mb-4">
+        <div class="card-header orders-top-products__header">
+          <i class="bi bi-trophy me-2"></i> Top 5 products
+        </div>
+        <div class="card-body p-0">
+          <div class="orders-top-products__list">
+            @for (s of topProducts; track s.formationTitle; let i = $index) {
+              <div class="orders-top-products__item" [class.orders-top-products__item--first]="i === 0">
+                <span class="orders-top-products__rank">{{ i + 1 }}</span>
+                <div class="orders-top-products__info flex-grow-1">
+                  <span class="orders-top-products__title">{{ s.formationTitle }}</span>
+                  <span class="orders-top-products__meta">{{ s.orderCount }} orders · {{ s.quantity }} sold</span>
+                </div>
+                <span class="orders-top-products__revenue">{{ s.revenue | number }} TND</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Orders list -->
+    @if (orders.length === 0) {
+      <div class="orders-empty text-center py-5">
+        <i class="bi bi-inbox orders-empty__icon"></i>
+        <p class="orders-empty__text text-muted mb-0">No orders yet.</p>
+      </div>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders; track order.idOrder) {
+          <div class="orders-list__card card shadow-sm mb-3">
+            <div
+              class="card-body orders-list__header"
+              role="button"
+              (click)="toggleOrder(order.idOrder ?? undefined)"
+            >
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="orders-list__summary">
+                  <span class="orders-list__order-id">Order #{{ order.idOrder }}</span>
+                  <span class="orders-list__amount">{{ order.totalAmount | number }} {{ order.currency ?? 'TND' }}</span>
+                </div>
+                <span class="badge orders-list__badge" [ngClass]="statusClass(order.status)">{{ order.status }}</span>
+              </div>
+              <small class="text-muted d-block mt-1">
+                <i class="bi bi-person me-1"></i> User {{ order.userId }}
+                <span class="ms-2"><i class="bi bi-calendar3 me-1"></i> {{ order.createdAt ?? 'N/A' }}</span>
+              </small>
+            </div>
+            @if (expandedOrderId === order.idOrder) {
+              <div class="orders-list__details border-top bg-light">
+                @if (order.items && order.items.length > 0) {
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0 orders-list__table">
+                      <thead>
+                        <tr>
+                          <th>Course</th>
+                          <th class="text-center">Qty</th>
+                          <th class="text-end">Unit price</th>
+                          <th class="text-end">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of order.items; track item.idOrderItem) {
+                          <tr>
+                            <td>{{ item.formationTitleSnapshot }}</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">{{ item.unitPriceSnapshot | number }} TND</td>
+                            <td class="text-end fw-medium">{{ item.unitPriceSnapshot * item.quantity | number }} TND</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+                <div class="orders-list__actions d-flex gap-2 p-3">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="downloadPdf(order)">
+                    <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    [disabled]="deletingId === order.idOrder"
+                    (click)="deleteOrder(order)"
+                  >
+                    @if (deletingId === order.idOrder) {
+                      <span class="spinner-border spinner-border-sm me-1"></span>
+                    } @else {
+                      <i class="bi bi-trash me-1"></i>
+                    }
+                    Delete
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

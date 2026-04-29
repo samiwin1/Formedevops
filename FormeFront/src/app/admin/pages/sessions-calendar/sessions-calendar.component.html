@@ -1,0 +1,116 @@
+<section class="admin-page">
+  <!-- Toolbar -->
+  <div class="calendar-toolbar">
+    <div class="toolbar-left">
+      <h1 class="toolbar-title">
+        <i class="bi bi-calendar-event"></i>
+        Sessions Calendar
+      </h1>
+      <span class="session-count-badge" *ngIf="!loading">{{ sessions.length }} sessions</span>
+    </div>
+    <div class="toolbar-right">
+      <button type="button" class="btn-view-toggle" [class.active]="!showListView" (click)="showListView = false">
+        <i class="bi bi-calendar3"></i> Calendar
+      </button>
+      <button type="button" class="btn-view-toggle" [class.active]="showListView" (click)="showListView = true">
+        <i class="bi bi-list-ul"></i> List
+      </button>
+      <button type="button" class="btn-refresh" (click)="load()">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert-error" *ngIf="error">
+    <i class="bi bi-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading sessions...</p>
+  </div>
+
+  <!-- Calendar View -->
+  <div *ngIf="!loading && !showListView" class="calendar-container">
+    <full-calendar [options]="calendarOptions" [events]="calendarEvents"></full-calendar>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!loading && showListView" class="list-container">
+    <!-- Empty State -->
+    <div *ngIf="dayGroups.length === 0" class="empty-state">
+      <i class="bi bi-calendar-x"></i>
+      <h3>No Sessions Scheduled</h3>
+      <p>There are no oral sessions scheduled at this time.</p>
+    </div>
+
+    <!-- Day Groups -->
+    <div class="day-group" *ngFor="let group of dayGroups">
+      <div class="day-header">
+        <i class="bi bi-calendar3"></i>
+        <span class="day-label">{{ group.label }}</span>
+        <span class="session-count">{{ group.sessions.length }} session{{ group.sessions.length !== 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="sessions-grid">
+        <div class="session-card" *ngFor="let session of group.sessions">
+          <div class="session-card-header">
+            <div class="session-id-badge">
+              <i class="bi bi-hash"></i>{{ session.id }}
+            </div>
+            <span class="session-status" [ngClass]="{
+              'status-done': session.status === 'DONE',
+              'status-planned': session.status === 'PLANNED',
+              'status-canceled': session.status === 'CANCELED'
+            }">
+              {{ session.status }}
+            </span>
+          </div>
+
+          <div class="session-card-body">
+            <h3 class="session-title">{{ session.title || 'Oral Session' }}</h3>
+            
+            <div class="session-meta">
+              <div class="meta-item">
+                <i class="bi bi-clock"></i>
+                <span>{{ session.scheduledAt | date:'shortTime' }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-hourglass"></i>
+                <span>{{ session.durationMinutes || 60 }} min</span>
+              </div>
+            </div>
+
+            <div class="session-info">
+              <div class="info-row">
+                <i class="bi bi-award"></i>
+                <span class="info-label">Certification:</span>
+                <span class="info-value">{{ session.certificationTitle || 'N/A' }}</span>
+              </div>
+              <div class="info-row">
+                <i class="bi bi-person-badge"></i>
+                <span class="info-label">Evaluator:</span>
+                <span class="info-value">{{ session.evaluatorId || 'Not assigned' }}</span>
+              </div>
+              <div class="info-row">
+                <i class="bi bi-people"></i>
+                <span class="info-label">Learners:</span>
+                <span class="info-value">{{ session.learnerCount ?? 0 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="session-card-footer">
+            <a class="btn-manage" [routerLink]="['/admin/oral-sessions']" queryParamsHandling="merge">
+              <i class="bi bi-gear"></i>
+              Manage Session
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

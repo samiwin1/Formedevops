@@ -1,0 +1,29 @@
+<div class="notif-bell-wrapper" *ngIf="isAdminOrSuperAdmin" (clickOutside)="isOpen = false">
+  <button class="bell-btn" (click)="toggleDropdown()" [attr.aria-label]="'Notifications (' + unreadCount + ' unread)'">
+    <i class="bi bi-bell-fill"></i>
+    <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+  </button>
+
+  <div class="notif-dropdown" *ngIf="isOpen">
+    <div class="notif-header">
+      <span>Notifications</span>
+      <button *ngIf="unreadCount > 0" (click)="markAllRead(); $event.stopPropagation()">Mark all read</button>
+    </div>
+    <div class="notif-empty" *ngIf="recentNotifications.length === 0">No unread notifications</div>
+    <div
+      class="notif-item"
+      *ngFor="let n of recentNotifications; trackBy: trackById"
+      [class.unread]="!n.isRead"
+      [ngClass]="typeClass(n.type)"
+      (click)="markRead(n)"
+    >
+      <span class="notif-icon">{{ typeIcon(n.type) }}</span>
+      <div class="notif-body">
+        <p class="notif-title">{{ n.title }}</p>
+        <p class="notif-msg">{{ n.message }}</p>
+        <span class="notif-time">{{ relativeTime(n.createdAt) }}</span>
+      </div>
+    </div>
+    <a class="notif-footer" routerLink="/admin/notifications" (click)="isOpen = false">View all notifications →</a>
+  </div>
+</div>

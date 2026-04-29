@@ -1,0 +1,99 @@
+<section class="formation-history py-5">
+  <div class="container">
+    <nav class="mb-4">
+      <a [routerLink]="['/formations', formationId]">← Back to Formation</a>
+    </nav>
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (error) {
+      <div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+        <span>{{ error }}</span>
+        <button class="btn btn-outline-danger btn-sm" (click)="loadData()">Retry</button>
+      </div>
+    } @else if (formation) {
+      <h2 class="mb-4">{{ formation.title }} — History</h2>
+
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <h5 class="mb-3">Evaluation History</h5>
+          @if (evaluationHistory.length === 0) {
+            <p class="text-muted">No evaluation attempts yet.</p>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Evaluation</th>
+                    <th>Attempt</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of evaluationHistory; track $index) {
+                    <tr>
+                      <td>{{ item.evaluationTitle }}</td>
+                      <td>{{ item.attemptNumber }}</td>
+                      <td>{{ item.score ?? '-' }}%</td>
+                      <td>
+                        @if (item.passed) {
+                          <span class="badge bg-success">Passed</span>
+                        } @else {
+                          <span class="badge bg-danger">Failed</span>
+                        }
+                      </td>
+                      <td>{{ formatDate(item.answeredAt) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+        <div class="col-lg-6 mb-4">
+          <h5 class="mb-3">Exam History</h5>
+          @if (examHistory.length === 0) {
+            <p class="text-muted">No exam attempts yet.</p>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Exam</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of examHistory; track $index) {
+                    <tr>
+                      <td>{{ item.examTitle }}</td>
+                      <td>{{ item.score ?? '-' }}%</td>
+                      <td>
+                        @if (item.passed) {
+                          <span class="badge bg-success">Passed</span>
+                        } @else {
+                          <span class="badge bg-danger">Failed</span>
+                        }
+                      </td>
+                      <td>{{ item.durationMinutes ?? '-' }} min</td>
+                      <td>{{ formatDate(item.submittedAt) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>

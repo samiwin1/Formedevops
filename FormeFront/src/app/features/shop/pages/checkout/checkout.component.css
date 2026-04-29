@@ -1,0 +1,12 @@
+.checkout-section .checkout-card {
+  max-width: 520px;
+  border-radius: 12px;
+}
+
+.checkout-section .payment-element-wrap {
+  min-height: 220px;
+}
+
+.checkout-section .payment-element-wrap iframe {
+  border-radius: 8px;
+}

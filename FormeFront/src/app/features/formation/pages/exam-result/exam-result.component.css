@@ -1,0 +1,168 @@
+/* Exam result – minimal */
+.exam-result-page {
+  padding: 2rem 0 4rem;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.exam-result-page .container {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.result-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.result-error-card,
+.result-empty-card {
+  text-align: center;
+  padding: 2rem;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.result-error-card .error-icon {
+  font-size: 2rem;
+  color: #f59e0b;
+  margin-bottom: 0.5rem;
+}
+
+.result-error-card h5,
+.result-empty-card h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.result-error-card a,
+.result-empty-card a {
+  color: #2563eb;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.result-empty-card .empty-icon-wrap {
+  font-size: 2rem;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+}
+
+.result-card {
+  padding: 2rem;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.result-card.passed .result-icon-wrapper {
+  background: #059669;
+  color: #fff;
+}
+
+.result-card.failed .result-icon-wrapper {
+  background: #6b7280;
+  color: #fff;
+}
+
+.result-icon-wrapper {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+}
+
+.result-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.result-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+}
+
+.result-score-badge {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 1.25rem;
+}
+
+.result-card.passed .result-score-badge {
+  border-color: #059669;
+  background: #f0fdf4;
+}
+
+.score-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.result-card.passed .score-value { color: #059669; }
+
+.score-label {
+  font-size: 0.7rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.2rem;
+}
+
+.result-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-back-formation {
+  padding: 0.55rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #111827;
+  color: #fff;
+  border: 1px solid #111827;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-back-formation:hover {
+  background: #374151;
+  border-color: #374151;
+  color: #fff;
+}
+
+.result-actions .btn-outline-secondary {
+  padding: 0.55rem 1.1rem;
+  font-size: 0.875rem;
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.result-actions .btn-outline-secondary:hover {
+  background: #f9fafb;
+}

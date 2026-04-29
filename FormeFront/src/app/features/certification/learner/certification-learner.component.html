@@ -1,0 +1,270 @@
+<section class="learner-page-bg">
+  <div class="container front-office-page py-3 py-lg-4">
+    <div class="page-surface p-3 p-md-4">
+      <header class="page-head mb-3 mb-lg-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div>
+            <h2 class="mb-1">
+              <i class="feather-layout me-2"></i>
+              Learner Dashboard
+            </h2>
+            <p class="mb-0">
+              <i class="feather-info me-1"></i>
+              Track your written exam, oral session status, and certifications.
+            </p>
+          </div>
+          <button class="btn btn-sm btn-refresh" (click)="refresh()" [disabled]="loading">
+            <i class="feather-refresh-cw me-1"></i>
+            {{ loading ? 'Loading...' : 'Refresh' }}
+          </button>
+        </div>
+      </header>
+
+      <div class="alert alert-success" *ngIf="success">
+        <i class="feather-check-circle me-2"></i>{{ success }}
+      </div>
+      <div class="alert alert-danger" *ngIf="error">
+        <i class="feather-alert-circle me-2"></i>{{ error }}
+      </div>
+
+      <!-- Journey Stats -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="journey-card">
+            <div class="journey-icon">
+              <i class="feather-book-open"></i>
+            </div>
+            <div class="journey-content">
+              <div class="journey-label">My Journey</div>
+              <div class="journey-value">{{ certifications.length }}/{{ availableCertifications.length }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="journey-card">
+            <div class="journey-icon bg-warning">
+              <i class="feather-award"></i>
+            </div>
+            <div class="journey-content">
+              <div class="journey-label">Certifications</div>
+              <div class="journey-value">{{ availableCertifications.length }} available, {{ certifications.length }} earned</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="journey-card">
+            <div class="journey-icon bg-info">
+              <i class="feather-edit"></i>
+            </div>
+            <div class="journey-content">
+              <div class="journey-label">My Written</div>
+              <div class="journey-value" *ngIf="writtenScore != null">Score: {{ writtenScore }}</div>
+              <div class="journey-value text-warning" *ngIf="writtenScore == null">Score: Pending</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="journey-card">
+            <div class="journey-icon bg-primary">
+              <i class="feather-video"></i>
+            </div>
+            <div class="journey-content">
+              <div class="journey-label">Next Oral</div>
+              <div class="journey-value" *ngIf="nextSession() as next">{{ next.scheduledAt | date:'MMM d, h:mm a' }}</div>
+              <div class="journey-value text-muted" *ngIf="!nextSession()">Not scheduled</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Oral Sessions -->
+      <section class="panel-card mb-4" id="my-oral-sessions">
+        <h5 class="panel-title">
+          <i class="feather-clock me-2"></i>My Oral Sessions
+        </h5>
+        <div class="session-cards-grid" *ngIf="mySessions.length > 0; else noSessionsTpl">
+          <article class="session-card" *ngFor="let session of mySessions">
+            <div class="session-card-head">
+              <div class="session-card-title">
+                <i class="feather-award"></i>
+                <strong>{{ session.certificationTitle || ('Certification #' + session.certificationId) }}</strong>
+              </div>
+              <span class="badge"
+                [class.bg-danger]="session.status === 'CANCELED'"
+                [class.bg-primary]="session.status === 'PLANNED'"
+                [class.bg-success]="session.status === 'DONE'">
+                {{ session.status }}
+              </span>
+            </div>
+
+            <div class="session-card-time">
+              <i class="feather-calendar"></i>
+              {{ session.scheduledAt | date:'MMM d, y, h:mm a' }}
+            </div>
+
+            <div class="session-card-actions">
+              <button class="btn btn-sm btn-outline-secondary" [disabled]="session.status === 'CANCELED' || session.status === 'DONE'">
+                <i class="feather-external-link me-1"></i>OPEN SLOT
+              </button>
+              <button class="btn btn-sm btn-outline-primary" *ngIf="session.status === 'CANCELED'" disabled>
+                <i class="feather-users me-1"></i>JOIN SESSION
+              </button>
+              <button class="btn btn-sm btn-outline-warning" *ngIf="session.status === 'CANCELED'" disabled>
+                <i class="feather-refresh-cw me-1"></i>RESCHEDULE
+              </button>
+              <a class="btn btn-sm btn-primary"
+                *ngIf="session.status === 'DONE'"
+                [href]="'https://linkedin.com'"
+                target="_blank">
+                <i class="feather-linkedin me-1"></i>
+              </a>
+            </div>
+          </article>
+        </div>
+        <ng-template #noSessionsTpl>
+          <div class="text-muted text-center py-4">
+            <i class="feather-inbox d-block mb-2" style="font-size: 2rem; opacity: 0.5;"></i>
+            No oral sessions assigned.
+          </div>
+        </ng-template>
+      </section>
+
+      <!-- My Results and Certifications -->
+      <section class="panel-card" id="my-certifications">
+        <h5 class="panel-title">
+          <i class="feather-shield me-2"></i>My Results and Certifications
+        </h5>
+        
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-3" *ngFor="let certification of certifications">
+            <div class="cert-card">
+              <div class="cert-header">
+                <div class="cert-icon">
+                  <i class="feather-award"></i>
+                </div>
+                <div class="cert-title">
+                  <div class="cert-name">Certification Name</div>
+                  <div class="cert-number">{{ certification.certificateNumber }}</div>
+                </div>
+              </div>
+              
+              <div class="cert-body">
+                <div class="cert-score-section">
+                  <div class="cert-score-label">Final Score</div>
+                  <div class="cert-score-value">
+                    <div class="score-circle" 
+                      [class.score-high]="certification.finalScore >= 80"
+                      [class.score-mid]="certification.finalScore >= 60 && certification.finalScore < 80"
+                      [class.score-low]="certification.finalScore < 60">
+                      {{ certification.finalScore }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="cert-issued-section">
+                  <div class="cert-issued-label">Issued On</div>
+                  <div class="cert-issued-date">{{ certification.issuedAt | date:'MMM d, y' }}</div>
+                </div>
+              </div>
+              
+              <div class="cert-status-bar">
+                <div class="status-step" 
+                  [class.active]="certification.status === 'REVOKED'"
+                  [class.completed]="certification.status !== 'REVOKED'">
+                  <div class="status-dot"></div>
+                  <div class="status-label">{{ certification.status === 'REVOKED' ? 'REVOKED' : 'ISSUED' }}</div>
+                </div>
+                <div class="status-line" [class.completed]="certification.status !== 'REVOKED'"></div>
+                <div class="status-step" [class.completed]="certification.status !== 'REVOKED'">
+                  <div class="status-dot"></div>
+                  <div class="status-label">ISSUED</div>
+                </div>
+                <div class="status-line" [class.completed]="certification.status !== 'REVOKED'"></div>
+                <div class="status-step" [class.completed]="certification.status !== 'REVOKED'">
+                  <div class="status-dot"></div>
+                  <div class="status-label">ISSUED</div>
+                </div>
+              </div>
+              
+              <div class="cert-actions">
+                <button class="btn btn-feedback w-100 mb-2"
+                  *ngIf="certification.status === 'ISSUED'"
+                  (click)="openFeedbackForCertification(certification.id)">
+                  <i class="feather-message-square me-2"></i>Give Feedback
+                </button>
+
+                <button class="btn btn-linkedin w-100 mb-2" 
+                  *ngIf="certification.status === 'ISSUED'"
+                  (click)="openLinkedInModal(certification.id, certification.certificateNumber)">
+                  <i class="feather-linkedin me-2"></i>Generate Post with AI
+                </button>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-outline-secondary flex-fill" 
+                    (click)="downloadPdf(certification.id)"
+                    [disabled]="certification.status === 'REVOKED'">
+                    <i class="feather-download me-1"></i>DOWNLOAD PDF
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary flex-fill" 
+                    (click)="openPdfModal(certification.id)"
+                    [disabled]="certification.status === 'REVOKED'">
+                    <i class="feather-eye me-1"></i>VIEW
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12" *ngIf="certifications.length === 0">
+            <div class="text-muted text-center py-5">
+              <i class="feather-inbox d-block mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+              <p class="mb-0">No certificates issued yet.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- PDF Certificate Modal -->
+<div class="pdf-modal-overlay" *ngIf="showPdfModal" (click)="closePdfModal()">
+  <div class="pdf-modal-content" (click)="$event.stopPropagation()">
+    <div class="pdf-modal-header">
+      <h5 class="pdf-modal-title">
+        <i class="feather-eye me-2"></i>Certificate Preview
+      </h5>
+      <button class="modal-close-btn" (click)="closePdfModal()">
+        <i class="feather-x"></i>
+      </button>
+    </div>
+    <div class="pdf-modal-body">
+      <app-pdf-viewer *ngIf="viewingCertId" [certificationId]="viewingCertId" />
+    </div>
+  </div>
+</div>
+
+<!-- LinkedIn Post Modal -->
+<div class="linkedin-modal-overlay" *ngIf="showLinkedInModal" (click)="closeLinkedInModal()">
+  <div class="linkedin-modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close-btn" (click)="closeLinkedInModal()">
+      <i class="feather-x"></i>
+    </button>
+    <app-linkedin-post-card
+      *ngIf="selectedCertId && selectedCertTitle"
+      [issuedCertificationId]="selectedCertId"
+      [certificationTitle]="selectedCertTitle">
+    </app-linkedin-post-card>
+  </div>
+</div>
+
+<app-feedback-modal
+  *ngIf="
+    showFeedbackModal() &&
+    feedbackModalIssuedCertificationId() != null &&
+    feedbackModalSessionId() != null
+  "
+  [issuedCertificationId]="feedbackModalIssuedCertificationId()!"
+  [sessionId]="feedbackModalSessionId()!"
+  (submitted)="onFeedbackSubmitted()"
+  (dismissed)="onFeedbackDismissed()"
+></app-feedback-modal>

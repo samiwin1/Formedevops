@@ -1,0 +1,129 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "forme-frontend": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/forme-frontend",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
+            ],
+            "styles": [
+              "node_modules/apexcharts/dist/apexcharts.css",
+              "src/styles.css",
+              "src/assets/mentor/vendor/bootstrap/css/bootstrap.min.css",
+              "src/assets/mentor/vendor/bootstrap-icons/bootstrap-icons.css",
+              "src/assets/mentor/vendor/aos/aos.css",
+              "src/assets/mentor/vendor/swiper/swiper-bundle.min.css",
+              "src/assets/mentor/vendor/glightbox/css/glightbox.min.css",
+              "src/assets/mentor/css/main.css",
+              "src/assets/duralux/css/bootstrap.min.css",
+              "src/assets/duralux/css/theme.min.css"
+            ],
+            "scripts": [
+              "src/assets/duralux/vendors/js/jquery.min.js",
+              "src/assets/mentor/vendor/bootstrap/js/bootstrap.bundle.min.js",
+              "src/assets/mentor/vendor/aos/aos.js",
+              "src/assets/mentor/vendor/purecounter/purecounter_vanilla.js",
+              "src/assets/mentor/vendor/swiper/swiper-bundle.min.js",
+              "src/assets/mentor/vendor/glightbox/js/glightbox.min.js",
+              "src/assets/mentor/js/main.js",
+              "src/assets/duralux/js/common-init.min.js"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "outputHashing": "media"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "port": 4200,
+            "proxyConfig": "proxy.conf.json"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "forme-frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "forme-frontend:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
+            ],
+            "styles": [
+              "node_modules/apexcharts/dist/apexcharts.css",
+              "src/styles.css",
+              "src/assets/mentor/vendor/bootstrap/css/bootstrap.min.css",
+              "src/assets/mentor/vendor/bootstrap-icons/bootstrap-icons.css",
+              "src/assets/mentor/vendor/aos/aos.css",
+              "src/assets/mentor/vendor/swiper/swiper-bundle.min.css",
+              "src/assets/mentor/vendor/glightbox/css/glightbox.min.css",
+              "src/assets/mentor/css/main.css",
+              "src/assets/duralux/css/bootstrap.min.css",
+              "src/assets/duralux/css/theme.min.css"
+            ],
+            "scripts": []
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

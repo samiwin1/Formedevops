@@ -1,0 +1,75 @@
+<section class="cart-section py-5">
+  <div class="container">
+    <h2 class="mb-4">Your cart</h2>
+
+    @if (error) {
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ error }}
+        <button type="button" class="btn-close" (click)="error = null" aria-label="Close"></button>
+      </div>
+    }
+
+    @if (loading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (items.length === 0) {
+      <p class="text-muted">Your cart is empty.</p>
+      <a routerLink="/courses" class="btn btn-primary">Browse courses</a>
+    } @else {
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Quantity</th>
+              <th>Unit price</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items; track item.idCartItem) {
+              <tr>
+                <td>{{ item.formationTitleSnapshot || 'Course' }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unitPriceSnapshot }} TND</td>
+                <td>{{ (item.unitPriceSnapshot ?? 0) * item.quantity }} TND</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    [disabled]="removingId === item.idCartItem"
+                    (click)="removeItem(item)"
+                  >
+                    @if (removingId === item.idCartItem) {
+                      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    } @else {
+                      Remove
+                    }
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <strong>Total: {{ total }} TND</strong>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="checkoutLoading"
+          (click)="proceedToCheckout()"
+        >
+          @if (checkoutLoading) {
+            <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          }
+          Proceed to checkout
+        </button>
+      </div>
+    }
+  </div>
+</section>

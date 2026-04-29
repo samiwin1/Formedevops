@@ -1,0 +1,41 @@
+<div class="container py-4">
+  <h2 class="mb-4">Edit product</h2>
+  <a routerLink="/admin/products/list" class="btn btn-outline-secondary mb-3">Back to list</a>
+
+  @if (loading) {
+    <div class="spinner-border text-primary" role="status"></div>
+  } @else {
+    @if (error) {
+      <div class="alert alert-danger">{{ error }}</div>
+    }
+    <form [formGroup]="form" (ngSubmit)="submit()" class="mw-500">
+      <div class="mb-3">
+        <label class="form-label">Formation</label>
+        <select class="form-select" formControlName="formationId">
+          <option [ngValue]="null">Select a formation</option>
+          @for (f of formations; track f.id) {
+            <option [ngValue]="f.id">{{ f.title }}</option>
+          }
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Price</label>
+        <input type="number" class="form-control" formControlName="price" min="1" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Currency</label>
+        <input type="text" class="form-control" formControlName="currency" />
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="isAvailable" formControlName="isAvailable" />
+        <label class="form-check-label" for="isAvailable">Available</label>
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting">
+        @if (submitting) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        Save
+      </button>
+    </form>
+  }
+</div>

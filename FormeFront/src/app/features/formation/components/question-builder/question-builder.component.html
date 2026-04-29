@@ -1,0 +1,76 @@
+<div class="question-builder">
+  <div class="builder-header">
+    <h6 class="builder-title">
+      <i class="bi bi-list-check"></i>
+      Multiple Choice Questions
+    </h6>
+    <button type="button" class="btn-add-q" (click)="addQuestion()">
+      <i class="bi bi-plus-circle"></i>
+      Add Question
+    </button>
+  </div>
+
+  @if (questions.length === 0) {
+    <div class="empty-questions">
+      <i class="bi bi-question-circle"></i>
+      <p>No questions yet. Click "Add Question" to create your first one.</p>
+    </div>
+  } @else {
+    <div class="questions-list">
+      @for (q of questions; track $index; let i = $index) {
+        <div class="question-card">
+          <div class="question-header">
+            <span class="question-num">Question {{ i + 1 }}</span>
+            <button type="button" class="btn-remove" (click)="removeQuestion(i)" title="Remove question">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+          <div class="question-body">
+            <label class="form-label">Question text</label>
+            <input
+              type="text"
+              class="form-control"
+              [value]="q.text"
+              (input)="updateQuestion(i, 'text', $any($event.target).value)"
+              placeholder="Enter the question..."
+            />
+            <div class="options-section">
+              <label class="form-label mt-3">Answer options <span class="text-muted">(select the correct one)</span></label>
+              @for (opt of q.options; track $index; let j = $index) {
+                <div class="option-row">
+                  <div class="option-radio" [class.correct]="q.correctIndex === j">
+                    <input
+                      type="radio"
+                      [name]="'correct' + i"
+                      [checked]="q.correctIndex === j"
+                      (change)="setCorrect(i, j)"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    class="form-control option-input"
+                    [value]="opt"
+                    (input)="updateOption(i, j, $any($event.target).value)"
+                    [placeholder]="'Option ' + (j + 1)"
+                  />
+                  <button
+                    type="button"
+                    class="btn-remove-opt"
+                    (click)="removeOption(i, j)"
+                    [disabled]="q.options.length <= 2"
+                    title="Remove option"
+                  >
+                    <i class="bi bi-dash"></i>
+                  </button>
+                </div>
+              }
+              <button type="button" class="btn-add-opt" (click)="addOption(i)">
+                <i class="bi bi-plus"></i> Add option
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

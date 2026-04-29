@@ -1,0 +1,111 @@
+<section class="admin-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Issued Certificates</h1>
+      <p class="page-sub">View and optionally revoke issued certificates.</p>
+    </div>
+    <div class="header-right">
+      <select class="filter-sel" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+        <option value="ALL">All status</option>
+        <option value="ISSUED">Issued</option>
+        <option value="REVOKED">Revoked</option>
+      </select>
+      <button type="button" class="btn btn-outline btn-sm" (click)="load()">
+        <i class="bi bi-arrow-clockwise"></i> REFRESH
+      </button>
+    </div>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+  <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading certificates...</p>
+  </div>
+
+  <div *ngIf="!loading && list.length === 0" class="empty-state-card">
+    <i class="bi bi-inbox"></i>
+    <h3>No Certificates Found</h3>
+    <p>No certificates have been issued yet or match your filter criteria.</p>
+  </div>
+
+  <div *ngIf="!loading && list.length > 0" class="certificates-container">
+    <div class="certificates-header">
+      <div class="certificates-count">
+        <i class="bi bi-patch-check-fill"></i>
+        <span>{{ list.length }} Certificate{{ list.length !== 1 ? 's' : '' }}</span>
+      </div>
+    </div>
+
+    <div class="certificates-grid">
+      <article class="certificate-card" *ngFor="let item of list" [ngClass]="{'revoked': item.status === 'REVOKED'}">
+        <div class="certificate-card-header">
+          <div class="certificate-badge">
+            <i class="bi bi-award-fill"></i>
+          </div>
+          <div class="certificate-status">
+            <span class="status-badge" [ngClass]="item.status === 'ISSUED' ? 'status-issued' : 'status-revoked'">
+              {{ item.status }}
+            </span>
+          </div>
+        </div>
+
+        <div class="certificate-card-body">
+          <div class="certificate-number">
+            <label>Certificate Number</label>
+            <strong>{{ item.certificateNumber }}</strong>
+          </div>
+
+          <div class="certificate-details">
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-person-fill"></i> Learner ID
+              </span>
+              <span class="detail-value">{{ item.learnerId }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-bookmark-fill"></i> Formation ID
+              </span>
+              <span class="detail-value">{{ item.formationId }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-label">
+                <i class="bi bi-calendar-check"></i> Issued At
+              </span>
+              <span class="detail-value">{{ item.issuedAt | date:'medium' }}</span>
+            </div>
+
+            <div class="detail-item score-item">
+              <span class="detail-label">
+                <i class="bi bi-graph-up"></i> Final Score
+              </span>
+              <span class="detail-value score-value" [ngClass]="item.status === 'REVOKED' ? 'score-neutral' : (item.finalScore >= 10 ? 'score-pass' : 'score-warn')">
+                {{ item.finalScore }}/20
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="certificate-card-footer">
+          <button 
+            *ngIf="item.status === 'ISSUED'" 
+            type="button" 
+            class="btn-revoke" 
+            (click)="revoke(item)" 
+            [disabled]="revokingId !== null">
+            <i class="bi bi-x-circle"></i>
+            {{ revokingId === item.id ? 'Revoking...' : 'Revoke Certificate' }}
+          </button>
+          <div *ngIf="item.status === 'REVOKED'" class="revoked-message">
+            <i class="bi bi-exclamation-triangle"></i>
+            Certificate has been revoked
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

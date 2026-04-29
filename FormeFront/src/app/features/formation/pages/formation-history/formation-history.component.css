@@ -1,0 +1,8 @@
+.formation-history nav a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.formation-history nav a:hover {
+  text-decoration: underline;
+}

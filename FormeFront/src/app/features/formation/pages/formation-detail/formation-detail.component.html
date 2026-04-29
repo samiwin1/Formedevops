@@ -1,0 +1,191 @@
+<section class="formation-detail">
+  <div class="fd-container">
+    @if (loading) {
+      <div class="fd-loading">
+        <span class="fd-spinner"></span>
+        <p>Loading course…</p>
+      </div>
+    } @else if (error) {
+      <div class="fd-error">
+        <p>{{ error }}</p>
+        <div class="fd-error-actions">
+          <button type="button" class="fd-btn fd-btn-outline" (click)="loadData()">Retry</button>
+          <a routerLink="/formations" class="fd-link">Back to Formations</a>
+        </div>
+      </div>
+    } @else if (formation) {
+      <nav class="fd-breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/formations" class="fd-breadcrumb-link">Formations</a>
+        @if (viewMode !== 'overview') {
+          <span class="fd-breadcrumb-sep" aria-hidden="true">/</span>
+          <a [routerLink]="['/formations', formationId]" class="fd-breadcrumb-link">{{ formation.title }}</a>
+        }
+        @if (viewMode === 'learning' && currentStep) {
+          <span class="fd-breadcrumb-sep" aria-hidden="true">/</span>
+          <span class="fd-breadcrumb-current">
+            @if (currentStep.type === 'content') {
+              {{ currentStep.block.title }}
+            } @else {
+              Quiz
+            }
+          </span>
+        }
+        @if (viewMode === 'exam-cta') {
+          <span class="fd-breadcrumb-sep" aria-hidden="true">/</span>
+          <span class="fd-breadcrumb-current">Exam</span>
+        }
+        @if (viewMode === 'overview') {
+          <span class="fd-breadcrumb-sep" aria-hidden="true">/</span>
+          <span class="fd-breadcrumb-current">{{ formation.title }}</span>
+        }
+      </nav>
+
+      @if (viewMode === 'overview') {
+        <article class="fd-overview-card">
+          <div class="fd-overview">
+            <h1 class="fd-overview-title">{{ formation.title }}</h1>
+            @if (formation.description) {
+              <p class="fd-overview-desc">{{ formation.description }}</p>
+            }
+            <div class="fd-overview-meta">
+              @if (formation.level) {
+                <span class="fd-meta-tag">{{ formation.level }}</span>
+              }
+              @if (formation.category) {
+                <span class="fd-meta-tag fd-meta-tag-accent">{{ formation.category }}</span>
+              }
+            </div>
+            @if (formation.objectives) {
+              <div class="fd-overview-block">
+                <strong>Objectives</strong>
+                <p>{{ formation.objectives }}</p>
+              </div>
+            }
+            @if (formation.skills_targeted) {
+              <div class="fd-overview-block">
+                <strong>Skills you’ll gain</strong>
+                <p>{{ formation.skills_targeted }}</p>
+              </div>
+            }
+            @if (steps.length > 0) {
+              <div class="fd-progress-block">
+                <div class="fd-progress-bar-wrap">
+                  <div class="fd-progress-bar" [style.width.%]="completionPercentage"></div>
+                </div>
+                <p class="fd-progress-text">{{ completionPercentage }}% complete</p>
+              </div>
+            }
+            @if (steps.length === 0) {
+              <p class="fd-overview-empty">No content yet.</p>
+            } @else {
+              <button type="button" class="fd-btn fd-btn-primary fd-btn-start" (click)="startFormation()">
+                Start course
+              </button>
+            }
+            @if (hasHistory) {
+              <a [routerLink]="['/formations', formationId, 'history']" class="fd-link fd-history-link">View my progress</a>
+            }
+          </div>
+        </article>
+      } @else if (viewMode === 'learning' && currentStep) {
+        <div class="fd-learning">
+          <aside class="fd-sidebar" aria-label="Course contents">
+            <div class="fd-sidebar-header">Course contents</div>
+            <div class="fd-sidebar-item done">
+              <span class="fd-sidebar-icon"><i class="bi bi-check-circle-fill"></i></span>
+              <span>Overview</span>
+            </div>
+            @for (step of steps; track step.index; let i = $index) {
+              <div class="fd-sidebar-item" [class.active]="i === currentStepIndex" [class.done]="i < currentStepIndex" [class.locked]="isStepLocked(i)" (click)="goToStep(i)">
+                <span class="fd-sidebar-icon">
+                  @if (i < currentStepIndex) {
+                    <i class="bi bi-check-circle-fill"></i>
+                  } @else if (isStepLocked(i)) {
+                    <i class="bi bi-lock-fill"></i>
+                  } @else {
+                    <span class="fd-sidebar-num">{{ i + 1 }}</span>
+                  }
+                </span>
+                <span class="fd-sidebar-label">
+                  @if (step.type === 'content') {
+                    {{ step.block.title }}
+                  } @else {
+                    Quiz
+                  }
+                </span>
+              </div>
+            }
+            <div class="fd-sidebar-item fd-sidebar-exam" [class.done]="currentStepIndex >= steps.length">
+              <span class="fd-sidebar-icon">
+                @if (currentStepIndex >= steps.length) {
+                  <i class="bi bi-check-circle-fill"></i>
+                } @else {
+                  <i class="bi bi-mortarboard-fill"></i>
+                }
+              </span>
+              <span>Final exam</span>
+            </div>
+          </aside>
+          <main class="fd-main">
+            <article class="fd-lesson-card">
+              @if (currentStep.type === 'content') {
+                <div class="fd-content">
+                  <h2 class="fd-content-title">{{ currentStep.block.title }}</h2>
+                  <div class="fd-content-body" [innerHTML]="currentStep.block.content_body || ''"></div>
+                  <div class="fd-content-footer">
+                    @if (canGoBack()) {
+                      <button type="button" class="fd-btn fd-btn-outline" (click)="goToPrevStep()"><i class="bi bi-arrow-left"></i> Back</button>
+                    }
+                    @if (hasNextStepQuiz()) {
+                      <button type="button" class="fd-btn fd-btn-primary" (click)="startQuizFromContent()">Continue to quiz <i class="bi bi-arrow-right"></i></button>
+                    } @else {
+                      <button type="button" class="fd-btn fd-btn-primary" (click)="goToNextContent()">Next lesson <i class="bi bi-arrow-right"></i></button>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="fd-quiz-wrap">
+                  <h2 class="fd-content-title">Quiz: {{ currentStep.block.title }}</h2>
+                  <app-evaluation-quiz
+                    [evaluation]="currentStep.evaluation"
+                    [formationId]="formationId"
+                    [resetting]="resetInProgress"
+                    (complete)="onQuizComplete($event)"
+                    (resetRequested)="onResetRequested()"
+                  ></app-evaluation-quiz>
+                </div>
+              }
+            </article>
+            <div class="fd-progress-block fd-progress-block-footer">
+              <div class="fd-progress-bar-wrap">
+                <div class="fd-progress-bar" [style.width.%]="completionPercentage"></div>
+              </div>
+              <p class="fd-progress-label">Section {{ currentStepIndex + 1 }} of {{ steps.length }} · {{ completionPercentage }}% complete</p>
+              @if (hasHistory) {
+                <a [routerLink]="['/formations', formationId, 'history']" class="fd-link fd-history-link">View my progress</a>
+              }
+            </div>
+          </main>
+        </div>
+      } @else if (viewMode === 'exam-cta') {
+        <article class="fd-exam-cta-card">
+          <div class="fd-exam-cta">
+            <div class="fd-exam-cta-icon"><i class="bi bi-mortarboard"></i></div>
+            <h2 class="fd-exam-cta-title">You’re ready for the exam</h2>
+            @if (hasExam && examEligible) {
+              <p>Complete the final exam to finish this course.</p>
+              <button type="button" class="fd-btn fd-btn-primary fd-btn-exam" (click)="goToExam()">Take final exam</button>
+            } @else if (hasExam && !examEligible) {
+              <p>Complete all quizzes to unlock the final exam.</p>
+            } @else {
+              <p>No exam for this formation.</p>
+            }
+            @if (hasHistory) {
+              <a [routerLink]="['/formations', formationId, 'history']" class="fd-link fd-history-link">View my progress</a>
+            }
+          </div>
+        </article>
+      }
+    }
+  </div>
+</section>

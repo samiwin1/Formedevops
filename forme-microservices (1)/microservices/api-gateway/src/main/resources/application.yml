@@ -1,0 +1,105 @@
+server:
+  port: 8082
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        # ── User-Service ─────────────────────────────────────────────────────
+        - id: user-service-auth
+          uri: lb://user-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: user-service-users
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
+
+        - id: user-service-admin
+          uri: lb://user-service
+          predicates:
+            - Path=/api/admin/**
+          filters:
+            - StripPrefix=1
+
+        - id: user-service-superadmin
+          uri: lb://user-service
+          predicates:
+            - Path=/api/superadmin/**
+          filters:
+            - StripPrefix=1
+
+        # ── Business-Service ─────────────────────────────────────────────────
+        - id: partner-route
+          uri: lb://business-service
+          predicates:
+            - Path=/api/partners/**
+
+        - id: deal-route
+          uri: lb://business-service
+          predicates:
+            - Path=/api/deals/**
+
+        - id: pack-route
+          uri: lb://business-service
+          predicates:
+            - Path=/api/packs/**
+
+        - id: accesscode-route
+          uri: lb://business-service
+          predicates:
+            - Path=/api/access-codes/**
+
+      # ── Global CORS ──────────────────────────────────────────────────────
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# ── Eureka ───────────────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, gateway
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

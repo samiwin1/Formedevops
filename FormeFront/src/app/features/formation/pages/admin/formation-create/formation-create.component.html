@@ -1,0 +1,209 @@
+<div class="formation-create py-4">
+  <h4 class="mb-4">Create Formation</h4>
+  <div class="stepper mb-4">
+    <span class="badge" [class.bg-primary]="step >= 1" [class.bg-secondary]="step < 1">1. Formation</span>
+    <span class="mx-2">→</span>
+    <span class="badge" [class.bg-primary]="step >= 2" [class.bg-secondary]="step < 2">2. Content</span>
+    <span class="mx-2">→</span>
+    <span class="badge" [class.bg-primary]="step >= 3" [class.bg-secondary]="step < 3">3. Quiz</span>
+    <span class="mx-2">→</span>
+    <span class="badge" [class.bg-primary]="step >= 4" [class.bg-secondary]="step < 4">4. More</span>
+    <span class="mx-2">→</span>
+    <span class="badge" [class.bg-primary]="step >= 5" [class.bg-secondary]="step < 5">5. Exam</span>
+    <span class="mx-2">→</span>
+    <span class="badge" [class.bg-primary]="step >= 6" [class.bg-secondary]="step < 6">6. Publish</span>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  }
+
+  @if (step === 1) {
+    <div class="card">
+      <div class="card-body">
+        <h5>Step 1: Formation Details</h5>
+        <div class="mb-3">
+          <label class="form-label">Title *</label>
+          <input type="text" class="form-control" [(ngModel)]="formation.title" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="formation.description"></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Level</label>
+            <select class="form-select" [(ngModel)]="formation.level">
+              <option value="">Select level</option>
+              @for (l of levelOptions; track l) {
+                <option [value]="l">{{ l }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" [(ngModel)]="formation.category">
+              <option value="">Select category</option>
+              @for (c of categoryOptions; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Objectives</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="formation.objectives"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Skills Targeted</label>
+          <input type="text" class="form-control" [(ngModel)]="formation.skills_targeted" />
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (step === 2 || step === 4) {
+    <div class="card">
+      <div class="card-body">
+        <h5>Step {{ step }}: Content Block {{ contentBlocks.length + 1 }}</h5>
+        <div class="mb-3">
+          <label class="form-label">Title *</label>
+          <input type="text" class="form-control" [(ngModel)]="currentContent.title" required />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content Type</label>
+          <select class="form-select" [(ngModel)]="currentContent.content_type">
+            <option value="text">Text</option>
+            <option value="html">HTML</option>
+            <option value="video">Video</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content Body</label>
+          <textarea class="form-control" rows="6" [(ngModel)]="currentContent.content_body"></textarea>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (step === 3) {
+    <div class="card">
+      <div class="card-body">
+        <h5>Step 3: Quiz (Evaluation)</h5>
+        <div class="mb-3">
+          <label class="form-label">Quiz Title *</label>
+          <input type="text" class="form-control" [(ngModel)]="currentEvaluation.title" placeholder="e.g. Chapter 1 Quiz" required />
+        </div>
+        <div class="mb-4">
+          <app-question-builder [(questions)]="quizQuestions"></app-question-builder>
+          <p class="form-text small text-muted mt-2">Add multiple choice questions. Select the correct answer with the radio button.</p>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Passing Score (%)</label>
+            <input type="number" class="form-control" [(ngModel)]="currentEvaluation.passing_score" min="0" max="100" placeholder="75" />
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Max Attempts</label>
+            <input type="number" class="form-control" [(ngModel)]="currentEvaluation.max_attempts" min="1" placeholder="3" />
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (step === 5) {
+    <div class="card">
+      <div class="card-body">
+        <h5>Step 5: Final Exam</h5>
+        <div class="mb-3">
+          <label class="form-label">Exam Title *</label>
+          <input type="text" class="form-control" [(ngModel)]="exam.title" placeholder="e.g. Final Assessment" required />
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Duration (minutes)</label>
+            <input type="number" class="form-control" [(ngModel)]="exam.duration_minutes" min="1" placeholder="60" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Passing Score (%)</label>
+            <input type="number" class="form-control" [(ngModel)]="exam.passing_score" min="0" max="100" placeholder="75" />
+          </div>
+        </div>
+        <div class="mb-3">
+          <app-question-builder [(questions)]="examQuestions"></app-question-builder>
+          <p class="form-text small text-muted mt-2">Add multiple choice questions for the final exam. Select the correct answer with the radio button.</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (step === 6) {
+    <div class="card">
+      <div class="card-body">
+        <h5>Step 6: Review & Publish</h5>
+        <p>Formation: {{ formation.title }}</p>
+        <p>Content blocks: {{ contentBlocks.length }}</p>
+        <p>Quizzes: {{ evaluations.length }}</p>
+        <p>Exam: {{ exam.title }}</p>
+        <p class="text-muted">Click "Publish" to set status to published and finish.</p>
+      </div>
+    </div>
+  }
+
+  <div class="d-flex gap-2 mt-4 flex-wrap align-items-center">
+    @if (step > 1 && step < 6) {
+      <button class="btn btn-outline-secondary" (click)="back()">Back</button>
+    }
+    @if (step === 4 && contentBlocks.length >= 1) {
+      <button class="btn btn-outline-primary" (click)="goToExamStep()">Skip to Exam</button>
+    }
+    @if (step === 1) {
+      <button type="button" class="btn btn-ai-generate" (click)="openAiGenerateModal()" [disabled]="loading || !formation.title?.trim()">
+        <i class="bi bi-robot"></i>
+        Generate with AI
+      </button>
+    }
+    <button class="btn btn-primary" (click)="nextStep()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner-border spinner-border-sm me-1"></span>
+      }
+      {{ step === 6 ? 'Publish' : 'Next' }}
+    </button>
+  </div>
+</div>
+
+<!-- AI Generate Blocks Modal (Step 1) -->
+@if (showAiBlocksModal) {
+  <div class="ai-modal-backdrop" (click)="closeAiBlocksModal()"></div>
+  <div class="ai-modal-container">
+    <div class="ai-modal-box" (click)="$event.stopPropagation()">
+      <div class="ai-modal-header">
+        <h6 class="ai-modal-title"><i class="bi bi-robot me-2"></i>Generate with AI</h6>
+        <button type="button" class="ai-modal-close" (click)="closeAiBlocksModal()" [disabled]="loading">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="ai-modal-body">
+        <p class="ai-modal-hint">AI will create content blocks, quizzes, and a final exam based on your formation details.</p>
+        @if (aiGenerateError) {
+          <div class="alert alert-danger py-2">{{ aiGenerateError }}</div>
+        }
+        <div class="ai-modal-animation mb-3" [style.display]="loading ? 'flex' : 'none'">
+          <app-agent-thinking-animation [active]="loading" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Number of content blocks</label>
+          <input type="number" class="form-control" min="1" max="10" [(ngModel)]="aiBlocksCount" [disabled]="loading" placeholder="3" />
+          <small class="text-muted">Each block will have its own quiz. A final exam will be added.</small>
+        </div>
+      </div>
+      <div class="ai-modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeAiBlocksModal()" [disabled]="loading">Cancel</button>
+        <button type="button" class="btn btn-ai-generate btn-sm" (click)="generateWithAiFromStep1()" [disabled]="loading">
+          <i class="bi bi-robot me-1"></i>Generate
+        </button>
+      </div>
+    </div>
+  </div>
+}

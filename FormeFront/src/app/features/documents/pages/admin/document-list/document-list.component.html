@@ -1,0 +1,89 @@
+<div class="catalog-page">
+  <header class="catalog-header">
+    <h1 class="catalog-title">
+      <i class="feather-file-text catalog-title-icon"></i>
+      Documents
+    </h1>
+    <a routerLink="/admin/documents/add" class="btn-add">
+      <i class="feather-plus"></i>
+      Add document
+    </a>
+  </header>
+
+  <div class="search-bar-wrap">
+    <i class="feather-search search-icon"></i>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by title, file name, type, formation, ID..."
+      [(ngModel)]="searchTerm"
+    />
+  </div>
+
+  @if (deleteError) {
+    <div class="alert-banner alert-warning">{{ deleteError }}</div>
+  }
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading documents...</p>
+    </div>
+  } @else if (error) {
+    <div class="alert-banner alert-danger">
+      <span>{{ error }}</span>
+      <button type="button" class="btn-retry" (click)="load()">Retry</button>
+    </div>
+  } @else if (filteredDocuments.length === 0) {
+    <div class="empty-state">
+      <p>No documents found.</p>
+      @if (documents.length > 0) {
+        <span class="text-muted">Try adjusting your search.</span>
+      }
+    </div>
+  } @else {
+    <div class="cards-grid">
+      @for (d of filteredDocuments; track $index) {
+        <div class="product-card">
+          <div class="card-top">
+            <h3 class="card-title">{{ d.title || d.fileName || 'Document #' + d.id }}</h3>
+            <span class="status-badge published">{{ displayFileType(d) }}</span>
+          </div>
+          <div class="card-details">
+            <div class="detail-box">
+              <span class="detail-label">ID</span>
+              <span class="detail-value">#{{ d.id }}</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-label">Formation</span>
+              <span class="detail-value">{{ formationLabel(d.formationId) }}</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-label">File</span>
+              <span class="detail-value">{{ d.fileName || '—' }}</span>
+            </div>
+            <div class="detail-box">
+              <span class="detail-label">Uploaded</span>
+              <span class="detail-value">{{ d.uploadedAt ? (d.uploadedAt | date: 'short') : '—' }}</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <a [routerLink]="['/admin/documents/edit', d.id]" class="btn-card btn-edit">Edit</a>
+            <button
+              type="button"
+              class="btn-card btn-delete"
+              [disabled]="deletingId === d.id"
+              (click)="deleteDocument(d)"
+            >
+              @if (deletingId === d.id) {
+                <span class="spinner-sm"></span> Deleting...
+              } @else {
+                Delete
+              }
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

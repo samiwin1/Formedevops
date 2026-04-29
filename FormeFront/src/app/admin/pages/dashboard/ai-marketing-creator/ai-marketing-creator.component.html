@@ -1,0 +1,197 @@
+<div class="creator-root">
+
+  <!-- ── API Key Overlay ─────────────────────────────────────────────────── -->
+  <div class="key-overlay" *ngIf="showKeyPrompt">
+    <div class="key-box">
+      <div class="key-orb">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+          <path d="M13 2L4.5 13.5H11L10 22L20.5 9.5H14L13 2Z" fill="url(#spark)"/>
+          <defs>
+            <linearGradient id="spark" x1="4" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ff5252"/>
+              <stop offset="100%" stop-color="#e040fb"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h4>Activate Marketing Studio</h4>
+      <p>Connect Gemini AI to generate ad copy, social posts, email campaigns, and more — all conversion-optimised.</p>
+      <input #keyInput class="key-input" type="password" placeholder="AIza..." (keyup.enter)="saveKey(keyInput.value)" />
+      <p class="key-hint">Free key at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></p>
+      <button class="key-btn" (click)="saveKey(keyInput.value)">
+        <i class="bi bi-lightning-fill"></i> Activate
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="creator-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </div>
+      <div>
+        <h2 class="header-title">Marketing Studio</h2>
+        <p class="header-sub">AI-powered copy — ads, socials, emails & promos in seconds</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="model-badge" *ngIf="apiKey">
+        <span class="pulse-dot"></span>
+        Gemini 2.0 Flash
+      </div>
+      <button class="settings-btn" (click)="clearKey()" title="Change API key">
+        <i class="bi bi-gear-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Tabs ───────────────────────────────────────────────────────────── -->
+  <div class="tabs-row">
+    <button class="tab-btn" [class.active]="activeTab === 'create'" (click)="activeTab = 'create'">
+      <i class="bi bi-plus-circle"></i> Create
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'library'" (click)="activeTab = 'library'">
+      <i class="bi bi-collection-fill"></i> Library
+      <span class="tab-count" *ngIf="generatedItems.length">{{ generatedItems.length }}</span>
+    </button>
+  </div>
+
+  <!-- ══ CREATE TAB ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" *ngIf="activeTab === 'create'">
+
+    <!-- Template Grid -->
+    <p class="section-label">① Pick your content format</p>
+    <div class="template-grid">
+      <button
+        class="template-card"
+        *ngFor="let t of TEMPLATES"
+        [class.selected]="selectedType === t.id"
+        (click)="selectType(t.id)"
+        [style.--card-accent]="t.color">
+        <div class="tcard-icon">
+          <i class="bi" [ngClass]="t.icon"></i>
+        </div>
+        <div class="tcard-body">
+          <p class="tcard-label">{{ t.label }}</p>
+          <p class="tcard-desc">{{ t.description }}</p>
+        </div>
+        <div class="tcard-check" *ngIf="selectedType === t.id">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+      </button>
+    </div>
+
+    <!-- Prompt Area -->
+    <div class="prompt-section" *ngIf="selectedType">
+      <p class="section-label">② Describe your campaign</p>
+
+      <!-- Quick Prompts -->
+      <div class="quick-prompts">
+        <button
+          class="qprompt-chip"
+          *ngFor="let p of getTemplate(selectedType).prompts"
+          (click)="usePrompt(p)">
+          <i class="bi bi-lightning-fill"></i> {{ p }}
+        </button>
+      </div>
+
+      <!-- Textarea -->
+      <div class="textarea-wrap">
+        <textarea
+          class="prompt-textarea"
+          [(ngModel)]="userPrompt"
+          rows="3"
+          [placeholder]="'Describe the ' + getTemplate(selectedType).label + ' you want — target audience, offer, tone...'"
+          (keydown.meta.enter)="generate()"
+          (keydown.ctrl.enter)="generate()">
+        </textarea>
+        <span class="textarea-hint">Ctrl+Enter to generate</span>
+      </div>
+
+      <!-- Generate Button -->
+      <button
+        class="generate-btn"
+        [class.loading]="isGenerating"
+        (click)="generate()"
+        [disabled]="!userPrompt.trim() || isGenerating || !apiKey">
+        <span *ngIf="!isGenerating">
+          <i class="bi bi-lightning-fill"></i>
+          Generate {{ getTemplate(selectedType).label }}
+        </span>
+        <span *ngIf="isGenerating" class="gen-loading">
+          <span class="gen-dot"></span>
+          <span class="gen-dot"></span>
+          <span class="gen-dot"></span>
+          Writing your copy...
+        </span>
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-create" *ngIf="!selectedType">
+      <div class="empty-illustration">
+        <i class="bi bi-lightning-charge"></i>
+      </div>
+      <p>Choose a format above to start generating</p>
+    </div>
+
+  </div>
+
+  <!-- ══ LIBRARY TAB ═════════════════════════════════════════════════════════ -->
+  <div class="tab-panel library-panel" *ngIf="activeTab === 'library'">
+
+    <!-- Empty Library -->
+    <div class="empty-library" *ngIf="generatedItems.length === 0">
+      <div class="empty-illustration"><i class="bi bi-collection"></i></div>
+      <p>Your generated campaigns will appear here</p>
+      <button class="switch-create-btn" (click)="activeTab = 'create'">
+        <i class="bi bi-plus-circle"></i> Create your first asset
+      </button>
+    </div>
+
+    <!-- Content Cards -->
+    <div class="library-list" *ngIf="generatedItems.length > 0">
+      <div
+        class="content-card"
+        *ngFor="let item of generatedItems; trackBy: trackById"
+        [class.pinned]="item.pinned">
+
+        <div class="ccard-header">
+          <div class="ccard-meta">
+            <span
+              class="ccard-type-badge"
+              [style.background]="getTemplate(item.type).color + '22'"
+              [style.color]="getTemplate(item.type).color">
+              <i class="bi" [ngClass]="getTemplate(item.type).icon"></i>
+              {{ getTemplate(item.type).label }}
+            </span>
+            <span class="ccard-pin" *ngIf="item.pinned"><i class="bi bi-pin-angle-fill"></i></span>
+          </div>
+          <div class="ccard-actions">
+            <button class="caction-btn" (click)="togglePin(item)" [title]="item.pinned ? 'Unpin' : 'Pin'">
+              <i class="bi" [ngClass]="item.pinned ? 'bi-pin-fill' : 'bi-pin'"></i>
+            </button>
+            <button class="caction-btn copy" (click)="copyContent(item)" title="Copy markdown">
+              <i class="bi" [ngClass]="copiedId === item.id ? 'bi-check-lg' : 'bi-clipboard'"></i>
+            </button>
+            <button class="caction-btn delete" (click)="deleteItem(item.id)" title="Delete">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </div>
+
+        <h4 class="ccard-title">{{ item.title }}</h4>
+        <p class="ccard-time">{{ item.timestamp | date:'MMM d, h:mm a' }}</p>
+
+        <details class="ccard-details">
+          <summary>View copy</summary>
+          <div class="ccard-body" [innerHTML]="formatMarkdown(item.body)"></div>
+        </details>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

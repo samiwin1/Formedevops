@@ -1,0 +1,111 @@
+<div class="admin-formations py-4">
+  <div class="formations-header">
+    <h1 class="formations-title">Manage Formations</h1>
+    <div class="formations-header-actions">
+      <a routerLink="/admin/formations/analytics" class="btn-analytics">
+        <i class="bi bi-graph-up"></i>
+        View Analytics
+      </a>
+      <a routerLink="/admin/formations/create" class="btn-add">
+        <i class="bi bi-plus-lg"></i>
+        Add Formation
+      </a>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading formations...</p>
+    </div>
+  } @else if (error) {
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+  } @else if (formations.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-journal-plus"></i>
+      </div>
+      <h3>No formations yet</h3>
+      <p class="text-muted">Create your first formation to get started.</p>
+      <a routerLink="/admin/formations/create" class="btn btn-primary btn-lg">Add Formation</a>
+    </div>
+  } @else {
+    <div class="formations-grid">
+      @for (f of formations; track f.id; let i = $index) {
+        <article
+          class="formation-card"
+          [class.expanded]="expandedId === f.id"
+          [style.animation-delay]="(i * 50) + 'ms'"
+          (click)="toggleExpand(f.id!)"
+        >
+          <div class="card-main">
+            <div class="card-header">
+              <h3 class="card-title">{{ f.title }}</h3>
+              <span
+                class="status-badge"
+                [class.published]="f.status === 'published'"
+                [class.draft]="f.status !== 'published'"
+              >
+                {{ f.status || 'draft' }}
+              </span>
+            </div>
+            <div class="card-meta">
+              @if (f.level) {
+                <span class="meta-item"><i class="bi bi-bar-chart"></i> {{ f.level }}</span>
+              }
+              @if (f.category) {
+                <span class="meta-item"><i class="bi bi-tag"></i> {{ f.category }}</span>
+              }
+            </div>
+            <div class="expand-hint">
+              <i class="bi bi-chevron-down" [class.rotated]="expandedId === f.id"></i>
+              {{ expandedId === f.id ? 'Less' : 'View details' }}
+            </div>
+          </div>
+
+          <div class="card-details" [class.visible]="expandedId === f.id">
+            @if (f.description) {
+              <div class="detail-section">
+                <h4>Description</h4>
+                <p>{{ f.description }}</p>
+              </div>
+            }
+            @if (f.objectives) {
+              <div class="detail-section">
+                <h4>Objectives</h4>
+                <p>{{ f.objectives }}</p>
+              </div>
+            }
+            @if (f.skills_targeted) {
+              <div class="detail-section">
+                <h4>Skills Targeted</h4>
+                <p>{{ f.skills_targeted }}</p>
+              </div>
+            }
+            @if (f.created_at) {
+              <p class="detail-meta text-muted small">Created {{ formatDate(f.created_at) }}</p>
+            }
+          </div>
+
+          <div class="card-actions" (click)="$event.stopPropagation()">
+            <a [routerLink]="['/admin/formations', f.id, 'edit']" class="action-btn edit" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a [routerLink]="['/admin/formations', f.id, 'content']" class="action-btn content" title="Content">
+              <i class="bi bi-file-text"></i>
+            </a>
+            <a [routerLink]="['/admin/formations', f.id, 'evaluations']" class="action-btn evaluations" title="Evaluations">
+              <i class="bi bi-clipboard-check"></i>
+            </a>
+            <a [routerLink]="['/admin/formations', f.id, 'exam']" class="action-btn exam" title="Exam">
+              <i class="bi bi-mortarboard"></i>
+            </a>
+            <button type="button" class="action-btn delete" (click)="delete(f.id!)" title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

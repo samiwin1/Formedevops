@@ -1,0 +1,44 @@
+<div class="funnel-card">
+  <h3 class="section-title">Learner Funnel</h3>
+  <p class="section-sub">Enrolled → In Progress → Completed → Cert Issued</p>
+
+  <div class="funnel-row">
+    <div class="funnel-labels">
+      <span class="name">Enrolled</span>
+      <span class="value">{{ enrolled }}</span>
+    </div>
+    <div class="funnel-track">
+      <div class="funnel-fill blue" [style.width.%]="width(enrolled)"></div>
+    </div>
+  </div>
+
+  <div class="funnel-row">
+    <div class="funnel-labels">
+      <span class="name">In Progress</span>
+      <span class="value">{{ inProgress }}</span>
+    </div>
+    <div class="funnel-track">
+      <div class="funnel-fill teal" [style.width.%]="width(inProgress)"></div>
+    </div>
+  </div>
+
+  <div class="funnel-row">
+    <div class="funnel-labels">
+      <span class="name">Completed</span>
+      <span class="value">{{ completed }}</span>
+    </div>
+    <div class="funnel-track">
+      <div class="funnel-fill green" [style.width.%]="width(completed)"></div>
+    </div>
+  </div>
+
+  <div class="funnel-row">
+    <div class="funnel-labels">
+      <span class="name">Cert Issued</span>
+      <span class="value">{{ certIssued }}</span>
+    </div>
+    <div class="funnel-track">
+      <div class="funnel-fill purple" [style.width.%]="width(certIssued)"></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,153 @@
+<header class="fm-header">
+  <div class="fm-container">
+    <!-- Brand -->
+    <a routerLink="/" class="fm-brand" aria-label="ForMe Home">
+      <span class="fm-logo">F</span>
+      <span class="fm-brand-text">
+        <span class="fm-brand-name">ForMe</span>
+        <span class="fm-brand-sub">Training & Certification</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="fm-nav d-none d-lg-flex" aria-label="Main navigation">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/about" routerLinkActive="active">About</a>
+      <a routerLink="/formations" routerLinkActive="active">Formations</a>
+      <a routerLink="/articles" routerLinkActive="active">Article</a>
+      <a routerLink="/me/certification-space" routerLinkActive="active">Certif</a>
+      <a routerLink="/courses" routerLinkActive="active">Courses</a>
+      <a routerLink="/trainers" routerLinkActive="active">Trainers</a>
+      <a routerLink="/events" routerLinkActive="active">Events</a>
+      <a routerLink="/pricing" routerLinkActive="active">Pricing</a>
+      <a routerLink="/contact" routerLinkActive="active">Contact</a>
+      <a
+  *ngIf="isAdminOrSuperAdmin()"
+  routerLink="/admin/dashboard"
+  routerLinkActive="active"
+>
+  <i class="bi bi-speedometer2"></i>
+  Admin
+</a>
+    </nav>
+
+    <!-- Right actions (desktop) -->
+    <div class="fm-actions d-none d-lg-flex">
+      <!-- Logged OUT -->
+      <ng-container *ngIf="!(isLoggedIn$ | async)">
+        <a routerLink="/login" class="fm-btn fm-btn-ghost">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Login
+        </a>
+        <a routerLink="/register" class="fm-btn fm-btn-primary">
+          Get Started
+          <i class="bi bi-arrow-right-short"></i>
+        </a>
+      </ng-container>
+
+      <!-- Logged IN -->
+      <ng-container *ngIf="(isLoggedIn$ | async)">
+        <a routerLink="/cart" class="fm-btn fm-btn-ghost position-relative me-2" aria-label="Cart">
+          <i class="bi bi-cart3"></i>
+          <span *ngIf="(cartCount$ | async) as count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" [class.invisible]="count === 0">{{ count }}</span>
+        </a>
+        <app-notification-bell></app-notification-bell>
+        <div class="fm-dropdown" [class.open]="menuOpen">
+          <button class="fm-user" type="button" (click)="toggleMenu()">
+            <span class="fm-avatar">U</span>
+            <span class="fm-user-text">Account</span>
+            <i class="bi bi-chevron-down"></i>
+          </button>
+
+          <div class="fm-menu" *ngIf="menuOpen">
+            <a routerLink="/profile" (click)="closeMenu()">
+              <i class="bi bi-person"></i>
+              My Profile
+            </a>
+            <a routerLink="/admin/certifications" (click)="closeMenu()" *ngIf="isAdmin()">
+              <i class="bi bi-patch-check"></i>
+              Certification Admin
+            </a>
+            <a routerLink="/evaluator/oral-assignments" (click)="closeMenu()" *ngIf="isEvaluator()">
+              <i class="bi bi-clipboard-check"></i>
+              Evaluator Space
+            </a>
+            <a routerLink="/me/certification-space" (click)="closeMenu()" *ngIf="isLearner()">
+              <i class="bi bi-award"></i>
+              Learner Space
+            </a>
+            <a routerLink="/me/certification-space" (click)="closeMenu()" *ngIf="isUser()">
+              <i class="bi bi-list-check"></i>
+              My Certif & Calendar
+            </a>
+            <a routerLink="/transactions" (click)="closeMenu()">
+              <i class="bi bi-receipt"></i>
+              Transactions
+            </a>
+            <div class="fm-sep"></div>
+            <button type="button" class="danger" (click)="logout(); closeMenu()">
+              <i class="bi bi-box-arrow-right"></i>
+              Logout
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Mobile toggle -->
+    <button class="fm-burger d-lg-none" type="button" (click)="mobileOpen = !mobileOpen" aria-label="Toggle menu">
+      <i class="bi" [class.bi-list]="!mobileOpen" [class.bi-x]="mobileOpen"></i>
+    </button>
+  </div>
+
+  <!-- Mobile panel -->
+  <div class="fm-mobile" *ngIf="mobileOpen">
+    <nav class="fm-mobile-nav" aria-label="Mobile navigation">
+      <a routerLink="/" (click)="closeAll()" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/about" (click)="closeAll()" routerLinkActive="active">About</a>
+      <a routerLink="/formations" (click)="closeAll()" routerLinkActive="active">Formations</a>
+      <a routerLink="/articles" (click)="closeAll()" routerLinkActive="active">Article</a>
+      <a routerLink="/me/certification-space" (click)="closeAll()" routerLinkActive="active">Certif</a>
+      <a routerLink="/courses" (click)="closeAll()" routerLinkActive="active">Courses</a>
+      <a routerLink="/trainers" (click)="closeAll()" routerLinkActive="active">Trainers</a>
+      <a routerLink="/events" (click)="closeAll()" routerLinkActive="active">Events</a>
+      <a routerLink="/pricing" (click)="closeAll()" routerLinkActive="active">Pricing</a>
+      <a routerLink="/contact" (click)="closeAll()" routerLinkActive="active">Contact</a>
+    </nav>
+
+    <div class="fm-mobile-actions">
+      <ng-container *ngIf="!(isLoggedIn$ | async)">
+        <a routerLink="/login" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100">
+          <i class="bi bi-box-arrow-in-right"></i> Login
+        </a>
+        <a routerLink="/register" (click)="closeAll()" class="fm-btn fm-btn-primary w-100">
+          Get Started <i class="bi bi-arrow-right-short"></i>
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="(isLoggedIn$ | async)">
+        <a routerLink="/cart" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100">
+          <i class="bi bi-cart3"></i> Cart <span *ngIf="(cartCount$ | async) as c">{{ c > 0 ? '(' + c + ')' : '' }}</span>
+        </a>
+        <a routerLink="/profile" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100">
+          <i class="bi bi-person"></i> My Profile
+        </a>
+        <a routerLink="/admin/certifications" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100" *ngIf="isAdmin()">
+          <i class="bi bi-patch-check"></i> Certification Admin
+        </a>
+        <a routerLink="/evaluator/oral-assignments" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100" *ngIf="isEvaluator()">
+          <i class="bi bi-clipboard-check"></i> Evaluator Space
+        </a>
+        <a routerLink="/me/certification-space" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100" *ngIf="isLearner()">
+          <i class="bi bi-award"></i> Learner Space
+        </a>
+        <a routerLink="/me/certification-space" (click)="closeAll()" class="fm-btn fm-btn-ghost w-100" *ngIf="isUser()">
+          <i class="bi bi-list-check"></i> My Certif & Calendar
+        </a>
+        <button type="button" class="fm-btn fm-btn-danger w-100" (click)="logout(); closeAll()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</header>

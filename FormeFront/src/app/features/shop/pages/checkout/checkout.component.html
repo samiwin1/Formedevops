@@ -1,0 +1,47 @@
+<section class="checkout-section py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Payment</h2>
+      <a routerLink="/cart" class="btn btn-outline-secondary">Back to cart</a>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">
+        {{ error() }}
+      </div>
+      <a routerLink="/cart" class="btn btn-primary mt-2">Back to cart</a>
+    } @else if (loading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading payment form...</span>
+        </div>
+        <p class="mt-2 text-muted">Preparing secure payment...</p>
+      </div>
+    } @else {
+      <div class="checkout-card card shadow-sm border-0">
+        <div class="card-body p-4">
+          <p class="text-muted mb-3">Complete your purchase with your card. This is <strong>test mode</strong> — no real charges.</p>
+          <div id="payment-element" class="payment-element-wrap"></div>
+          <div class="mt-4">
+            <button
+              type="button"
+              class="btn btn-primary btn-lg w-100"
+              [disabled]="submitting()"
+              (click)="submit()"
+            >
+              @if (submitting()) {
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+              }
+              Pay now
+            </button>
+          </div>
+          <div class="alert alert-info mt-4 mb-0" role="alert">
+            <strong>Stripe test card (developer mode)</strong><br>
+            Card number: <code>4242 4242 4242 4242</code><br>
+            Expiry: any future date (e.g. 12/34) · CVC: any 3 digits · ZIP: any 5 digits
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

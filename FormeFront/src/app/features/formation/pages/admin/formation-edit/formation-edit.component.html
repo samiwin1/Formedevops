@@ -1,0 +1,68 @@
+<div class="formation-edit">
+  <nav class="edit-breadcrumb">
+    <a [routerLink]="['/admin/formations']">← Formations</a>
+  </nav>
+  <h1 class="edit-title">Edit Formation</h1>
+  @if (loading) {
+    <div class="edit-loading">
+      <span class="spinner"></span>
+      <p>Loading…</p>
+    </div>
+  } @else if (formation) {
+    @if (error) {
+      <div class="edit-error">{{ error }}</div>
+    }
+    <div class="edit-card">
+      <div class="form-group">
+        <label for="editTitle">Title</label>
+        <input id="editTitle" type="text" class="form-control" [(ngModel)]="formation.title" placeholder="Formation title" />
+      </div>
+      <div class="form-group">
+        <label for="editDesc">Description</label>
+        <textarea id="editDesc" class="form-control" rows="3" [(ngModel)]="formation.description" placeholder="Brief description"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="editObjectives">Objectives</label>
+        <textarea id="editObjectives" class="form-control" rows="2" [(ngModel)]="formation.objectives" placeholder="Learning objectives"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="editSkills">Skills targeted</label>
+        <input id="editSkills" type="text" class="form-control" [(ngModel)]="formation.skills_targeted" placeholder="e.g. Java, Spring, REST" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editLevel">Level</label>
+          <select id="editLevel" class="form-select" [(ngModel)]="formation.level">
+            <option value="">Select level</option>
+            @for (l of levelOptions; track l) {
+              <option [value]="l">{{ l }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editCategory">Category</label>
+          <select id="editCategory" class="form-select" [(ngModel)]="formation.category">
+            <option value="">Select category</option>
+            @for (c of categoryOptions; track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editStatus">Status</label>
+          <select id="editStatus" class="form-select" [(ngModel)]="formation.status">
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <a [routerLink]="['/admin/formations']" class="btn-secondary">Cancel</a>
+        <button type="button" class="btn-primary" (click)="save()" [disabled]="saving">
+          @if (saving) { <span class="spinner-sm"></span> }
+          Save
+        </button>
+      </div>
+    </div>
+  }
+</div>

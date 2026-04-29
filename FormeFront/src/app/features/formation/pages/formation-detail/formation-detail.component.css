@@ -1,0 +1,515 @@
+/* Formation detail – course training app style, template accent (green), no blue */
+
+.formation-detail {
+  min-height: 100vh;
+  background: var(--background-color);
+  padding: 1.5rem 0 4rem;
+  color: var(--default-color);
+}
+
+.fd-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* Loading */
+.fd-loading {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: color-mix(in srgb, var(--default-color), transparent 30%);
+  font-size: 0.95rem;
+}
+
+.fd-spinner {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 2px solid color-mix(in srgb, var(--accent-color), transparent 70%);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: fd-spin 0.7s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes fd-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error */
+.fd-error {
+  padding: 1.5rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  color: #b91c1c;
+}
+
+.fd-error p { margin: 0 0 0.75rem 0; }
+
+.fd-error-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.fd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: var(--surface-color);
+  color: var(--default-color);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.fd-btn i {
+  font-size: 1rem;
+}
+
+.fd-btn-outline:hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 92%);
+  border-color: color-mix(in srgb, var(--accent-color), transparent 60%);
+  color: var(--accent-color);
+}
+
+.fd-btn-primary {
+  background: var(--accent-color);
+  color: var(--contrast-color);
+  border-color: var(--accent-color);
+}
+
+.fd-btn-primary:hover {
+  background: color-mix(in srgb, var(--accent-color), black 12%);
+  border-color: color-mix(in srgb, var(--accent-color), black 12%);
+  color: var(--contrast-color);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-color), transparent 50%);
+}
+
+.fd-link {
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.fd-link:hover {
+  color: color-mix(in srgb, var(--accent-color), black 15%);
+  text-decoration: underline;
+}
+
+/* Breadcrumb – template accent, no blue */
+.fd-breadcrumb {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.fd-breadcrumb-link {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.fd-breadcrumb-link:hover {
+  color: color-mix(in srgb, var(--accent-color), black 15%);
+  text-decoration: underline;
+}
+
+.fd-breadcrumb-sep {
+  margin: 0 0.15rem;
+  color: #cbd5e1;
+  user-select: none;
+}
+
+.fd-breadcrumb-current {
+  color: var(--heading-color);
+  font-weight: 600;
+}
+
+/* Overview card */
+.fd-overview-card {
+  background: var(--surface-color);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem 2rem 2.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  max-width: 640px;
+}
+
+.fd-overview-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0 0 0.6rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.fd-overview-desc {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--default-color), transparent 15%);
+  margin: 0 0 1.25rem 0;
+}
+
+.fd-overview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.fd-meta-tag {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.65rem;
+  background: color-mix(in srgb, var(--heading-color), transparent 92%);
+  color: var(--heading-color);
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.fd-meta-tag-accent {
+  background: color-mix(in srgb, var(--accent-color), transparent 88%);
+  color: var(--accent-color);
+}
+
+.fd-overview-block {
+  margin-bottom: 1.25rem;
+}
+
+.fd-overview-block strong {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--default-color), transparent 35%);
+  margin-bottom: 0.35rem;
+}
+
+.fd-overview-block p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--default-color);
+  line-height: 1.55;
+}
+
+.fd-overview-empty {
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+  font-size: 0.95rem;
+  margin: 0 0 1.25rem 0;
+}
+
+.fd-progress-block {
+  margin-bottom: 1.25rem;
+}
+
+.fd-progress-bar-wrap {
+  height: 8px;
+  background: color-mix(in srgb, var(--accent-color), transparent 88%);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.fd-progress-bar {
+  height: 100%;
+  background: var(--accent-color);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.fd-progress-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+  margin: 0 0 1rem 0;
+}
+
+.fd-btn-start {
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.fd-history-link {
+  display: inline-block;
+  margin-top: 1rem;
+}
+
+/* Sidebar – course contents */
+.fd-learning {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .fd-learning {
+    grid-template-columns: 1fr;
+  }
+  .fd-sidebar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 0.5rem;
+  }
+  .fd-sidebar-header {
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+  .fd-sidebar-item {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  .fd-sidebar-icon { margin-right: 0.35rem; }
+}
+
+.fd-sidebar {
+  position: sticky;
+  top: 1rem;
+  background: var(--surface-color);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.fd-sidebar-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--default-color), transparent 40%);
+  padding: 0.6rem 0.75rem 0.4rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.25rem;
+}
+
+.fd-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.fd-sidebar-item.locked {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.fd-sidebar-item:not(.locked) {
+  cursor: pointer;
+}
+
+.fd-sidebar-item:not(.locked):hover {
+  background: color-mix(in srgb, var(--accent-color), transparent 92%);
+  color: var(--heading-color);
+}
+
+.fd-sidebar-item.done {
+  color: var(--accent-color);
+}
+
+.fd-sidebar-item.done .fd-sidebar-icon {
+  color: var(--accent-color);
+}
+
+.fd-sidebar-item.active {
+  background: color-mix(in srgb, var(--accent-color), transparent 90%);
+  color: var(--heading-color);
+  font-weight: 600;
+  border-left: 3px solid var(--accent-color);
+  margin-left: -1px;
+  padding-left: calc(0.75rem + 2px);
+}
+
+.fd-sidebar-item.active .fd-sidebar-icon {
+  color: var(--accent-color);
+}
+
+.fd-sidebar-item.fd-sidebar-exam .fd-sidebar-icon {
+  color: color-mix(in srgb, var(--heading-color), transparent 40%);
+}
+
+.fd-sidebar-item.fd-sidebar-exam.done .fd-sidebar-icon {
+  color: var(--accent-color);
+}
+
+.fd-sidebar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  flex-shrink: 0;
+  font-size: 1rem;
+  color: #94a3b8;
+}
+
+.fd-sidebar-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.fd-sidebar-label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Main – lesson card */
+.fd-main {
+  min-width: 0;
+}
+
+.fd-lesson-card {
+  background: var(--surface-color);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem 2rem 2.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.fd-content-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0 0 1.25rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.fd-content-body {
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--default-color);
+  margin-bottom: 1.75rem;
+}
+
+.fd-content-body :deep(p) {
+  margin: 0 0 0.9rem 0;
+}
+
+.fd-content-body :deep(h1),
+.fd-content-body :deep(h2),
+.fd-content-body :deep(h3) {
+  margin: 1.5rem 0 0.5rem 0;
+  color: var(--heading-color);
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.fd-content-body :deep(ul),
+.fd-content-body :deep(ol) {
+  padding-left: 1.5rem;
+  margin: 0 0 0.9rem 0;
+}
+
+.fd-content-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.fd-quiz-wrap .fd-content-title {
+  margin-bottom: 1.25rem;
+}
+
+/* Progress block under lesson */
+.fd-progress-block-footer {
+  padding: 1rem 1.25rem;
+  background: color-mix(in srgb, var(--accent-color), transparent 94%);
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+  border-radius: 10px;
+}
+
+.fd-progress-block-footer .fd-progress-bar-wrap {
+  margin-bottom: 0.5rem;
+}
+
+.fd-progress-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--heading-color), transparent 25%);
+}
+
+.fd-progress-block-footer .fd-history-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+}
+
+/* Exam CTA card */
+.fd-exam-cta-card {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.fd-exam-cta {
+  padding: 2.5rem 2rem;
+  background: var(--surface-color);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.fd-exam-cta-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--accent-color), transparent 88%);
+  color: var(--accent-color);
+  border-radius: 14px;
+  font-size: 1.75rem;
+}
+
+.fd-exam-cta-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.fd-exam-cta p {
+  font-size: 0.95rem;
+  color: color-mix(in srgb, var(--default-color), transparent 20%);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.fd-btn-exam {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.fd-exam-cta .fd-history-link {
+  margin-top: 1.25rem;
+}

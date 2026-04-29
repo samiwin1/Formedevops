@@ -1,0 +1,159 @@
+<div class="map-root">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="map-header">
+    <div class="map-title-group">
+      <div class="live-dot"></div>
+      <div>
+        <h2 class="map-title">Learner Intelligence Map</h2>
+        <p class="map-sub">Neural graph · Community detection · AI analysis</p>
+      </div>
+    </div>
+    <div class="map-kpis">
+      <div class="mkpi"><span class="mkpi-val">{{ totalNodes }}</span><span class="mkpi-lbl">Learners</span></div>
+      <div class="mkpi"><span class="mkpi-val">{{ totalEdges }}</span><span class="mkpi-lbl">Connections</span></div>
+      <div class="mkpi"><span class="mkpi-val">{{ totalClusters }}</span><span class="mkpi-lbl">Clusters</span></div>
+      <div class="mkpi risk"><span class="mkpi-val">{{ atRiskCount }}</span><span class="mkpi-lbl">At risk</span></div>
+    </div>
+  </div>
+
+  <!-- ── Body ────────────────────────────────────────────────────────────── -->
+  <div class="map-body">
+
+    <!-- ── Canvas area ──────────────────────────────────────────────────── -->
+    <div class="canvas-wrap">
+      <div class="grid-bg"></div>
+
+      <canvas #cvs
+        (mousemove)="onMouseMove($event)"
+        (mousedown)="onMouseDown($event)"
+        (mouseup)="onMouseUp($event)"
+        (wheel)="onWheel($event)">
+      </canvas>
+
+      <!-- Mode toggle -->
+      <div class="mode-btns">
+        <button class="mode-btn" [class.active]="mode==='force'" (click)="setMode('force')">⬡ Force</button>
+        <button class="mode-btn" [class.active]="mode==='cluster'" (click)="setMode('cluster')">◉ Cluster</button>
+        <button class="mode-btn" (click)="resetView()">⊡ Reset</button>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="leg-row" *ngFor="let cl of clusters; let i=index">
+          <span class="leg-dot" [style.background]="cl.color"></span>
+          <span class="leg-label">{{ cl.label }} ({{ cl.nodes.length }})</span>
+        </div>
+        <div class="leg-row risk-leg">
+          <span class="leg-dot risk-glow"></span>
+          <span class="leg-label">At-risk learner</span>
+        </div>
+      </div>
+
+      <!-- Hover tooltip -->
+      <div class="tip"
+           [style.left.px]="tooltipX"
+           [style.top.px]="tooltipY"
+           [style.opacity]="hoveredNode ? 1 : 0"
+           *ngIf="hoveredNode">
+        <strong>{{ hoveredNode.name }}</strong> · {{ hoveredNode.profession }}<br>
+        <span class="tip-forms">{{ hoveredNode.formations.join(', ') || 'No formations' }}</span>
+      </div>
+    </div>
+
+    <!-- ── Sidebar ───────────────────────────────────────────────────────── -->
+    <div class="sidebar">
+
+      <!-- Chips -->
+      <div class="chip-row">
+        <span class="chip">STUDENTS <b>{{ studentCount }}</b></span>
+        <span class="chip">DEVS <b>{{ devCount }}</b></span>
+        <span class="chip">ISOLATED <b>{{ isolatedCount }}</b></span>
+      </div>
+
+      <!-- Clusters -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">Learning Clusters</div>
+        <div class="clusters-list">
+          <div class="cluster-card"
+               *ngFor="let cl of clusters"
+               [style.border-left-color]="cl.color"
+               (click)="focusCluster(cl.id)">
+            <div class="cc-name">{{ cl.label }} · {{ cl.nodes.length }} learners</div>
+            <div class="cc-meta">
+              {{ cl.topFormations.join(', ') || 'N/A' }}
+              <span class="cc-risk" *ngIf="cl.atRisk > 0">· ⚠ {{ cl.atRisk }} at risk</span>
+            </div>
+            <div class="cc-bar" [style.background]="cl.color" [style.width.%]="cl.pct"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Selected node panel -->
+      <div class="node-panel" *ngIf="selectedNode" @fadeIn>
+        <div class="np-header">
+          <div>
+            <div class="np-name">{{ selectedNode.name }}</div>
+            <div class="np-prof">{{ profIcon(selectedNode.profession) }} {{ selectedNode.profession }} · {{ selectedNode.degree }} connection{{ selectedNode.degree !== 1 ? 's' : '' }}</div>
+          </div>
+          <div>
+            <span class="risk-badge" [class]="'risk-'+selectedNode.risk">{{ selectedNode.risk.toUpperCase() }}</span>
+            <button class="close-btn" (click)="closeNode()">✕</button>
+          </div>
+        </div>
+        <div class="np-tags">
+          <span class="np-tag" *ngFor="let f of selectedNode.formations">{{ f }}</span>
+        </div>
+        <div class="np-cluster">
+          Cluster: <b [style.color]="clusterColor(selectedNode.cluster)">{{ clusterLabel(selectedNode.cluster) }}</b>
+          · {{ selectedNode.degree }} shared links
+        </div>
+      </div>
+
+      <div class="divider" *ngIf="selectedNode"></div>
+
+      <!-- AI Panel -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <span class="ai-badge">AI</span>
+          <span class="ai-label">Claude graph analysis</span>
+        </div>
+
+        <div class="ai-body">
+          <!-- Idle -->
+          <div class="ai-idle" *ngIf="!aiLoading && !aiAnalyzed">
+            Click <b>Analyze</b> to get real-time AI insights on your learner communities,
+            at-risk nodes, and formation gaps.
+          </div>
+
+          <!-- Loading -->
+          <div class="ai-loading" *ngIf="aiLoading">
+            <div class="ai-spinner"></div>
+            <span>Claude is reading the graph…</span>
+          </div>
+
+          <!-- Insights -->
+          <div class="ai-insights" *ngIf="aiAnalyzed && !aiLoading">
+            <div class="ai-insight" *ngFor="let ins of aiInsights">
+              <span class="ins-icon">{{ ins.icon }}</span>
+              <div class="ins-body">
+                <div class="ins-title">{{ ins.title }}</div>
+                <div class="ins-text">{{ ins.text }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-footer">
+          <button class="analyze-btn" (click)="runAI()" [disabled]="aiLoading">
+            <span *ngIf="!aiLoading">✦ {{ aiAnalyzed ? 'Re-analyze' : 'Analyze with Claude' }}</span>
+            <span *ngIf="aiLoading" class="ai-spinner-inline"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

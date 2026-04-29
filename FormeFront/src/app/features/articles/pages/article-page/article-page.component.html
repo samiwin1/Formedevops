@@ -1,0 +1,138 @@
+<section class="article-page">
+  <div class="article-hero">
+    <div>
+      <span class="article-kicker">Article</span>
+      <h1>Publish ideas, guides, and career updates.</h1>
+      <p>
+        Share educational content, career tips, and certification news. Readers can like and comment directly on each post.
+      </p>
+    </div>
+  </div>
+
+  <div class="article-layout">
+    <section class="article-composer card-shell">
+      <div class="section-heading">
+        <h2>Publier un article</h2>
+        <p>Write your post and publish it to the feed.</p>
+      </div>
+
+      @if (!isLoggedIn) {
+        <div class="article-auth-note">
+          You need to log in before publishing or commenting.
+        </div>
+      }
+
+      <div class="article-form">
+        <input type="text" [(ngModel)]="composer.titre" placeholder="Title" />
+        <input type="text" [(ngModel)]="composer.resume" placeholder="Short summary" />
+        <textarea [(ngModel)]="composer.contenu" rows="6" placeholder="Write something educational, informative, or career-related..."></textarea>
+        <div class="article-form__row">
+          <select [(ngModel)]="composer.categorie">
+            @for (category of categories; track category) {
+              <option [value]="category">{{ categoryLabel(category) }}</option>
+            }
+          </select>
+          <input type="url" [(ngModel)]="composer.image" placeholder="Image URL (optional)" />
+        </div>
+        <button class="article-publish-btn" type="button" (click)="publish()" [disabled]="publishing">
+          @if (publishing) {
+            Publishing...
+          } @else {
+            Publier
+          }
+        </button>
+      </div>
+    </section>
+
+    <section class="article-feed">
+      <div class="section-heading section-heading--feed">
+        <h2>Latest posts</h2>
+        <p>Read, like, and comment on published articles.</p>
+      </div>
+
+      @if (loading) {
+        <div class="article-state">Loading articles...</div>
+      } @else if (error) {
+        <div class="article-state article-state--error">{{ error }}</div>
+      } @else if (articles.length === 0) {
+        <div class="article-state">No article published yet.</div>
+      } @else {
+        <div class="article-list">
+          @for (article of articles; track trackByArticleId($index, article)) {
+            <article class="article-card card-shell">
+              <div class="article-card__meta">
+                <span class="article-badge">{{ categoryLabel(article.categorie) }}</span>
+                @if (article.genereParIa) {
+                  <span class="article-ai">AI generated</span>
+                }
+              </div>
+
+              <h3 [attr.dir]="isArabic(article) ? 'rtl' : null">{{ displayTitle(article) }}</h3>
+              @if (displaySummary(article)) {
+                <p class="article-summary" [attr.dir]="isArabic(article) ? 'rtl' : null">{{ displaySummary(article) }}</p>
+              }
+              <p class="article-content" [attr.dir]="isArabic(article) ? 'rtl' : null">{{ displayContent(article) }}</p>
+
+              @if (article.image) {
+                <img class="article-image" [src]="article.image" [alt]="article.titre" />
+              }
+
+              <div class="article-actions">
+                <button type="button" class="article-action" [class.article-action--active]="article.likedByCurrentUser" (click)="toggleLike(article)">
+                  <i class="bi" [class.bi-heart]="!article.likedByCurrentUser" [class.bi-heart-fill]="article.likedByCurrentUser"></i>
+                  <span>{{ article.likeCount ?? 0 }}</span>
+                </button>
+                <button type="button" class="article-action" (click)="toggleComments(article)">
+                  <i class="bi bi-chat-dots"></i>
+                  <span>{{ article.commentCount ?? 0 }}</span>
+                </button>
+                <div class="article-translate" role="group" aria-label="Translate article">
+                  @for (option of languageOptions; track option.code) {
+                    <button
+                      type="button"
+                      class="article-translate__btn"
+                      [class.article-translate__btn--active]="getSelectedLanguage(article) === option.code"
+                      [disabled]="isLanguageLoading(article)"
+                      (click)="setArticleLanguage(article, option.code)"
+                    >
+                      {{ option.label }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              @if (translationErrorMessage(article)) {
+                <div class="article-state article-state--small article-state--error">{{ translationErrorMessage(article) }}</div>
+              }
+
+              @if (commentsOpen[articleKey(article)]) {
+                <div class="article-comments">
+                  @if (commentsLoading[articleKey(article)]) {
+                    <div class="article-state article-state--small">Loading comments...</div>
+                  } @else {
+                    <div class="article-comments__list">
+                      @for (comment of comments[articleKey(article)]; track comment.id) {
+                        <div class="article-comment">
+                          <div class="article-comment__head">
+                            <strong>{{ comment.authorName || 'User' }}</strong>
+                            <span>{{ comment.createdAt | date:'short' }}</span>
+                          </div>
+                          <p>{{ comment.content }}</p>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="article-comment-form">
+                    <textarea [(ngModel)]="commentDrafts[articleKey(article)]" rows="3" placeholder="Write a comment..."></textarea>
+                    <button type="button" class="article-comment-btn" (click)="submitComment(article)">Commenter</button>
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</section>

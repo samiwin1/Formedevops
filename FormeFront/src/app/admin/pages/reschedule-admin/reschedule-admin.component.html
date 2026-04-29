@@ -1,0 +1,166 @@
+<section class="admin-page">
+  <!-- Toolbar -->
+  <div class="reschedule-toolbar">
+    <div class="toolbar-left">
+      <h1 class="toolbar-title">
+        <i class="bi bi-arrow-repeat"></i>
+        Reschedule Requests
+      </h1>
+      <span class="request-count-badge" *ngIf="!loading">{{ requests.length }} requests</span>
+    </div>
+    <div class="toolbar-right">
+      <select class="status-filter" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+        <option value="ALL">All status</option>
+        <option value="PENDING">Pending</option>
+        <option value="APPROVED">Approved</option>
+        <option value="REJECTED">Rejected</option>
+      </select>
+      <button type="button" class="btn-refresh" (click)="loadRequests()">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert-error" *ngIf="error">
+    <i class="bi bi-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+  <div class="alert-success" *ngIf="success">
+    <i class="bi bi-check-circle"></i>
+    {{ success }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading requests...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && requests.length === 0" class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <h3>No Reschedule Requests</h3>
+    <p>There are no reschedule requests for the selected status.</p>
+  </div>
+
+  <!-- Requests Grid -->
+  <div *ngIf="!loading && requests.length > 0" class="requests-container">
+    <div class="request-card" *ngFor="let item of requests">
+      <div class="request-card-header">
+        <div class="request-header-left">
+          <div class="request-id-badge">
+            <i class="bi bi-hash"></i>{{ item.id }}
+          </div>
+          <div class="request-info">
+            <h3 class="learner-name">
+              <i class="bi bi-person-circle"></i>
+              {{ item.learnerName || 'Learner #' + item.learnerId }}
+            </h3>
+            <p class="request-date">
+              <i class="bi bi-clock"></i>
+              Requested {{ item.requestedAt | date:'medium' }}
+            </p>
+          </div>
+        </div>
+        <span class="request-status" [ngClass]="{
+          'status-pending': item.status === 'PENDING',
+          'status-approved': item.status === 'APPROVED',
+          'status-rejected': item.status === 'REJECTED'
+        }">
+          {{ item.status }}
+        </span>
+      </div>
+
+      <div class="request-card-body">
+        <div class="dates-grid">
+          <div class="date-box current">
+            <div class="date-label">
+              <i class="bi bi-calendar-x"></i>
+              Current Session
+            </div>
+            <div class="date-value">{{ item.sessionScheduledAt | date:'short' }}</div>
+          </div>
+          <div class="date-arrow">
+            <i class="bi bi-arrow-right"></i>
+          </div>
+          <div class="date-box proposed">
+            <div class="date-label">
+              <i class="bi bi-calendar-check"></i>
+              Proposed Date
+            </div>
+            <div class="date-value">{{ item.proposedDatetime | date:'short' }}</div>
+          </div>
+        </div>
+
+        <div class="reason-box">
+          <div class="reason-label">
+            <i class="bi bi-chat-left-text"></i>
+            Learner's Reason
+          </div>
+          <div class="reason-text">{{ item.message || 'No reason provided' }}</div>
+        </div>
+
+        <div *ngIf="isPending(item)" class="action-section">
+          <div class="replacement-section">
+            <label class="replacement-label">
+              <i class="bi bi-calendar-plus"></i>
+              Replacement Session (Optional)
+            </label>
+            <select
+              class="replacement-select"
+              [ngModel]="replacementSessionByRequest[item.id] ?? null"
+              (ngModelChange)="replacementSessionByRequest[item.id] = $event">
+              <option [ngValue]="null">No replacement session</option>
+              <option *ngFor="let session of replacementOptions(item)" [ngValue]="session.id">
+                Session #{{ session.id }} - {{ session.title }} - {{ session.scheduledAt | date:'short' }}
+              </option>
+            </select>
+
+            <label class="replacement-label replacement-datetime-label">
+              <i class="bi bi-calendar-event"></i>
+              Or create a new replacement date/time
+            </label>
+            <input
+              type="datetime-local"
+              class="replacement-datetime-input"
+              [ngModel]="replacementDatetimeByRequest[item.id] || ''"
+              (ngModelChange)="replacementDatetimeByRequest[item.id] = $event" />
+          </div>
+
+          <div class="comment-section">
+            <label class="comment-label">
+              <i class="bi bi-pencil"></i>
+              Admin Comment (Optional)
+            </label>
+            <input
+              type="text"
+              class="comment-input"
+              [ngModel]="commentByRequest[item.id] || ''"
+              (ngModelChange)="commentByRequest[item.id]=$event"
+              placeholder="Add a comment for the learner..." />
+          </div>
+
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn-approve"
+              (click)="approve(item)"
+              [disabled]="processingId !== null">
+              <i class="bi bi-check-circle"></i>
+              Approve Request
+            </button>
+            <button
+              type="button"
+              class="btn-reject"
+              (click)="reject(item)"
+              [disabled]="processingId !== null">
+              <i class="bi bi-x-circle"></i>
+              Reject Request
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

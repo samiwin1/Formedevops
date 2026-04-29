@@ -1,0 +1,64 @@
+
+
+<div class="page">
+  <div class="container py-4">
+
+    <div class="topbar">
+      <div>
+        <h2 class="title">User Management</h2>
+        <p class="sub">Normal users only (admins excluded).</p>
+      </div>
+
+      <div class="actions">
+        <input class="search" type="text" [formControl]="qCtrl" placeholder="Search by name or email..." />
+        <button class="btnx" (click)="refresh()" [disabled]="loading">Refresh</button>
+        <button class="btnx ghost" (click)="downloadPdf()" [disabled]="loading || filtered.length === 0">
+  Export PDF
+</button>
+      </div>
+    </div>
+
+    <div *ngIf="error" class="alertx">{{ error }}</div>
+
+    <div class="cardx">
+      <div *ngIf="loading" class="muted">Loading…</div>
+
+      <table *ngIf="!loading" class="tablex">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Profession</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let u of filtered">
+            <td class="name">
+             <div class="avatar">{{ (u.firstName[0] || 'U') }}{{ (u.lastName[0] || '') }}</div>
+              <div>
+                <div class="n1">{{ u.firstName }} {{ u.lastName }}</div>
+                <div class="n2">ID: {{ u.id }}</div>
+              </div>
+            </td>
+
+            <td>{{ u.email }}</td>
+            <td>{{ u.profession }}</td>
+
+            <td>
+              <span class="badge" [class.off]="(u.active === false) || (u.isActive === false)">
+                {{ ((u.active === false) || (u.isActive === false)) ? 'Disabled' : 'Active' }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="filtered.length === 0">
+            <td colspan="4" class="muted center">No normal users found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

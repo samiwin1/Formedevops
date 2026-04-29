@@ -1,0 +1,177 @@
+<div class="aic-card">
+
+  <!-- ── Header ── -->
+  <div class="aic-header">
+    <div class="aic-header-left">
+      <div class="aic-icon"><i class="bi bi-shield-fill-check"></i></div>
+      <div>
+        <h3 class="aic-title">Admin Intelligence Center</h3>
+        <p class="aic-sub">Formation health · Early warnings · Revenue breakdown</p>
+      </div>
+    </div>
+
+    <!-- Platform Score Donut -->
+    <div class="score-wrap">
+      <svg viewBox="0 0 80 80" class="score-svg">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="#1e293b" stroke-width="8"/>
+        <circle cx="40" cy="40" r="36" fill="none"
+          [attr.stroke]="scoreColor"
+          stroke-width="8"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="donutCircumference"
+          [attr.stroke-dashoffset]="scoreDashOffset"
+          transform="rotate(-90 40 40)"
+          style="transition: stroke-dashoffset 0.8s ease"/>
+        <text x="40" y="37" text-anchor="middle" class="score-num">{{ platformScore }}</text>
+        <text x="40" y="50" text-anchor="middle" class="score-pct">/ 100</text>
+      </svg>
+      <div class="score-meta">
+        <p class="score-label" [style.color]="scoreColor">{{ scoreLabel }}</p>
+        <p class="score-desc">Platform Score</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Quick Stats ── -->
+  <div class="quick-stats">
+    <div class="qs-item critical" *ngIf="criticalCount > 0">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>{{ criticalCount }} critical alert{{ criticalCount > 1 ? 's' : '' }}</span>
+    </div>
+    <div class="qs-item ok" *ngIf="criticalCount === 0">
+      <i class="bi bi-check-circle-fill"></i>
+      <span>No critical alerts</span>
+    </div>
+    <div class="qs-item warn">
+      <i class="bi bi-people-fill"></i>
+      <span>{{ totalAtRisk }} learners at risk</span>
+    </div>
+    <div class="qs-item info">
+      <i class="bi bi-journal-check"></i>
+      <span>{{ formationHealth.length }} formations tracked</span>
+    </div>
+  </div>
+
+  <!-- ── Tabs ── -->
+  <div class="aic-tabs">
+    <button class="aic-tab" [class.active]="activeTab === 'health'" (click)="setTab('health')">
+      <i class="bi bi-heart-pulse-fill"></i> Formation Health
+    </button>
+    <button class="aic-tab" [class.active]="activeTab === 'warnings'" (click)="setTab('warnings')">
+      <i class="bi bi-bell-fill"></i> Early Warnings
+      <span class="tab-count critical-count" *ngIf="criticalCount > 0">{{ criticalCount }}</span>
+    </button>
+    <button class="aic-tab" [class.active]="activeTab === 'revenue'" (click)="setTab('revenue')">
+      <i class="bi bi-pie-chart-fill"></i> Revenue Split
+    </button>
+  </div>
+
+  <div class="aic-body">
+
+    <!-- ── FORMATION HEALTH TAB ── -->
+    <ng-container *ngIf="activeTab === 'health'">
+      <div *ngIf="formationHealth.length === 0" class="empty-state">
+        <i class="bi bi-bar-chart"></i>
+        <p>No formation data yet. Seed the database to see health scores.</p>
+      </div>
+      <div class="health-list" *ngIf="formationHealth.length > 0">
+        <div class="health-row" *ngFor="let f of formationHealth" [ngClass]="healthColor(f.health)">
+          <div class="health-left">
+
+            <!-- Health gauge -->
+            <div class="gauge-wrap" [ngClass]="healthColor(f.health)">
+              <svg viewBox="0 0 44 44" class="gauge-svg">
+                <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="4"/>
+                <circle cx="22" cy="22" r="18" fill="none"
+                  stroke="currentColor" stroke-width="4"
+                  stroke-linecap="round"
+                  [attr.stroke-dasharray]="2 * 3.14159 * 18"
+                  [attr.stroke-dashoffset]="(2 * 3.14159 * 18) - (f.health / 100) * (2 * 3.14159 * 18)"
+                  transform="rotate(-90 22 22)"/>
+                <text x="22" y="26" text-anchor="middle" class="gauge-text">{{ f.health }}</text>
+              </svg>
+            </div>
+
+            <div class="health-info">
+              <div class="health-name-row">
+                <span class="health-name">{{ f.name }}</span>
+                <i class="bi trend-icon" [ngClass]="[trendIcon(f.trend), trendClass(f.trend)]"></i>
+              </div>
+              <div class="health-metrics">
+                <span class="hm-pill">✅ {{ f.completionRate }}% complete</span>
+                <span class="hm-pill">📝 {{ f.passRate }}% pass</span>
+                <span class="hm-pill risk" [ngClass]="riskBadge(f.dropOffRisk)">
+                  {{ f.dropOffRisk === 'high' ? '🔴' : f.dropOffRisk === 'medium' ? '🟡' : '🟢' }}
+                  {{ f.dropOffRisk }} drop-off risk
+                </span>
+              </div>
+              <p class="health-action"><i class="bi bi-lightbulb-fill"></i> {{ f.action }}</p>
+            </div>
+          </div>
+
+          <div class="health-right">
+            <span class="at-risk-badge" *ngIf="f.studentsAtRisk > 0">
+              <i class="bi bi-person-exclamation"></i>
+              {{ f.studentsAtRisk }} at risk
+            </span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ── EARLY WARNINGS TAB ── -->
+    <ng-container *ngIf="activeTab === 'warnings'">
+      <div class="warnings-list">
+        <div class="warning-row" *ngFor="let w of earlyWarnings" [ngClass]="w.severity">
+          <div class="warning-left">
+            <span class="warning-icon">{{ w.icon }}</span>
+            <div class="warning-info">
+              <p class="warning-title">{{ w.title }}</p>
+              <p class="warning-detail">{{ w.detail }}</p>
+            </div>
+          </div>
+          <span class="warning-metric" [ngClass]="w.severity">{{ w.metric }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ── REVENUE SPLIT TAB ── -->
+    <ng-container *ngIf="activeTab === 'revenue'">
+      <div *ngIf="revenueSegments.length === 0" class="empty-state">
+        <i class="bi bi-currency-exchange"></i>
+        <p>No order data yet. Revenue breakdown will appear once orders come in.</p>
+      </div>
+
+      <div class="revenue-wrap" *ngIf="revenueSegments.length > 0">
+        <!-- Horizontal stacked bar -->
+        <div class="stacked-bar">
+          <div class="stack-segment"
+            *ngFor="let s of revenueSegments"
+            [style.width.%]="s.pct"
+            [style.background]="s.color"
+            [title]="s.label + ': ' + s.value + ' TND'">
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="rev-legend">
+          <div class="rev-legend-row" *ngFor="let s of revenueSegments">
+            <div class="rev-dot" [style.background]="s.color"></div>
+            <span class="rev-name">{{ s.label }}</span>
+            <div class="rev-bar-track">
+              <div class="rev-bar-fill" [style.width.%]="s.pct" [style.background]="s.color"></div>
+            </div>
+            <span class="rev-pct">{{ s.pct }}%</span>
+            <span class="rev-val">{{ s.value }} TND</span>
+          </div>
+        </div>
+
+      <div class="rev-total">
+  <span>Total Revenue</span>
+  <strong>{{ totalRevenue }} TND</strong>
+</div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

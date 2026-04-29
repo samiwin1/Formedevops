@@ -1,0 +1,244 @@
+<section class="courses-page">
+  <header class="courses-hero">
+    <div class="container">
+      <div class="courses-hero__inner">
+        <span class="courses-eyebrow">Learning catalog</span>
+        <h1 class="courses-title">Courses</h1>
+        <p class="courses-lead">
+          Pick a formation, add it to your cart, or go straight to checkout in one step.
+        </p>
+        @if (!loading && !error && products.length > 0) {
+          <p class="courses-meta">
+            <span class="courses-meta__badge">{{ products.length }} course{{ products.length === 1 ? '' : 's' }}</span>
+            <span class="courses-meta__hint">available now</span>
+          </p>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div class="courses-body">
+    <div class="container">
+      @if (loading) {
+        <div class="courses-loading" role="status" aria-live="polite">
+          <div class="courses-loading__spinner" aria-hidden="true"></div>
+          <p>Loading courses…</p>
+        </div>
+      } @else if (error) {
+        <div class="courses-alert" role="alert">
+          <div class="courses-alert__icon" aria-hidden="true">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <div class="courses-alert__text">
+            <strong>Something went wrong</strong>
+            <span>{{ error }}</span>
+          </div>
+          <button type="button" class="courses-btn courses-btn--ghost" (click)="loadProducts()">Try again</button>
+        </div>
+      } @else if (products.length === 0) {
+        <div class="courses-empty">
+          <div class="courses-empty__icon" aria-hidden="true">
+            <i class="bi bi-inbox"></i>
+          </div>
+          <h2 class="courses-empty__title">No courses yet</h2>
+          <p class="courses-empty__text">Check back soon — new formations will appear here.</p>
+        </div>
+      } @else {
+        <div class="row g-4 courses-grid">
+          @for (product of products; track product.idProduct) {
+            <div class="col-12 col-md-6 col-xl-4">
+              <article class="course-card">
+                <div class="course-card__accent" aria-hidden="true"></div>
+                <div class="course-card__top">
+                  <div class="course-card__icon">
+                    <i class="bi bi-mortarboard-fill" aria-hidden="true"></i>
+                  </div>
+                  @if (product.isAvailable === false) {
+                    <span class="course-card__badge">Unavailable</span>
+                  }
+                </div>
+                <div class="course-card__body">
+                  <h2 class="course-card__title">{{ product.formationTitleSnapshot || 'Course' }}</h2>
+                  <div class="course-card__price-row">
+                    <span class="course-card__amount">{{ product.price | number: '1.0-2' }}</span>
+                    <span class="course-card__currency">{{ product.currency }}</span>
+                  </div>
+                  <div class="course-card__actions">
+                    <button
+                      type="button"
+                      class="courses-btn courses-btn--ghost courses-btn--block"
+                      [disabled]="product.isAvailable === false || addingProductId === product.idProduct"
+                      (click)="addToCart(product)"
+                    >
+                      @if (addingProductId === product.idProduct) {
+                        <span class="courses-btn__spinner" aria-hidden="true"></span>
+                      } @else {
+                        <i class="bi bi-cart-plus" aria-hidden="true"></i>
+                      }
+                      Add to cart
+                    </button>
+                    <button
+                      type="button"
+                      class="courses-btn courses-btn--primary courses-btn--block"
+                      [disabled]="product.isAvailable === false || buyingProductId === product.idProduct"
+                      (click)="buyNow(product)"
+                    >
+                      @if (buyingProductId === product.idProduct) {
+                        <span class="courses-btn__spinner" aria-hidden="true"></span>
+                      } @else {
+                        <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+                      }
+                      Buy now
+                    </button>
+                    <button
+                      type="button"
+                      class="courses-btn courses-btn--ghost courses-btn--block courses-btn--span-2"
+                      (click)="openDocuments(product)"
+                    >
+                      @if (openingDocsProductId === product.idProduct) {
+                        <span class="courses-btn__spinner" aria-hidden="true"></span>
+                      } @else {
+                        <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                      }
+                      View Documents
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+@if (isDocsModalOpen) {
+  <div class="courses-modal-backdrop" (click)="closeDocuments()"></div>
+  <div class="courses-modal" role="dialog" aria-modal="true" aria-labelledby="docs-modal-title">
+    <div class="courses-modal__content">
+      <div class="courses-modal__header">
+        <h3 id="docs-modal-title" class="courses-modal__title">Formation Documents</h3>
+        <button type="button" class="courses-modal__close" aria-label="Close" (click)="closeDocuments()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="courses-modal__body">
+        @if (loadingDocs) {
+          <div class="courses-modal__loading">
+            <span class="courses-btn__spinner courses-modal__spinner"></span>
+            <p>Loading documents...</p>
+          </div>
+        } @else if (selectedDocs.length === 0) {
+          <div class="courses-modal__empty">
+            <i class="bi bi-inbox" aria-hidden="true"></i>
+            <p>No documents attached to this formation.</p>
+          </div>
+        } @else {
+          <div class="docs-browser">
+            <div class="docs-browser__list-pane">
+              <p class="docs-browser__count">{{ selectedDocs.length }} document{{ selectedDocs.length === 1 ? '' : 's' }}</p>
+              <ul class="docs-list">
+                @for (doc of selectedDocs; track doc.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="docs-list__item"
+                      [class.docs-list__item--active]="selectedDoc?.id === doc.id"
+                      (click)="selectDocument(doc)"
+                    >
+                      <div class="docs-list__info">
+                        <i class="bi bi-file-earmark-text docs-list__icon" aria-hidden="true"></i>
+                        <div class="docs-list__text">
+                          <span class="docs-list__title">{{ doc.title || doc.fileName }}</span>
+                          <span class="docs-list__meta">{{ displayFileType(doc) }}</span>
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <div class="docs-browser__preview-pane">
+              @if (selectedDoc) {
+                <div class="docs-preview__header">
+                  <div>
+                    <h4 class="docs-preview__title">{{ selectedDoc.title || selectedDoc.fileName }}</h4>
+                    <p class="docs-preview__filename">{{ displayFileType(selectedDoc) }}</p>
+                    @if (selectedDoc.fileName) {
+                      <p class="docs-preview__filename">{{ selectedDoc.fileName }}</p>
+                    }
+                  </div>
+                  <div class="docs-preview__actions">
+                    <button
+                      type="button"
+                      class="courses-btn courses-btn--ghost docs-preview__action"
+                      [disabled]="openingDocId === selectedDoc.id"
+                      (click)="openDocument(selectedDoc)"
+                    >
+                      Open
+                    </button>
+                    <button
+                      type="button"
+                      class="courses-btn courses-btn--primary docs-preview__action"
+                      [disabled]="downloadingDocId === selectedDoc.id"
+                      (click)="downloadDocument(selectedDoc)"
+                    >
+                      Download
+                    </button>
+                  </div>
+                </div>
+
+                @if (previewLoading) {
+                  <div class="courses-modal__loading">
+                    <span class="courses-btn__spinner courses-modal__spinner"></span>
+                    <p>Preparing preview...</p>
+                  </div>
+                } @else if (previewError) {
+                  <div class="docs-preview__error">{{ previewError }}</div>
+                } @else if (previewText) {
+                  <pre class="docs-preview__text">{{ previewText }}</pre>
+                } @else if (previewUrl) {
+                  <iframe class="docs-preview__frame" [src]="previewUrl | safeResourceUrl" title="Document preview"></iframe>
+                }
+
+                <section class="docs-chat">
+                  <div class="docs-chat__header">
+                    <h5>Ask this document</h5>
+                  </div>
+                  <div class="docs-chat__messages">
+                    @for (m of chatMessages; track $index) {
+                      <div class="docs-chat__msg" [class.docs-chat__msg--user]="m.role === 'user'">
+                        {{ m.text }}
+                      </div>
+                    }
+                    @if (chatLoading) {
+                      <div class="docs-chat__msg">Thinking...</div>
+                    }
+                  </div>
+                  <form class="docs-chat__form" (ngSubmit)="askSelectedDocument()">
+                    <input
+                      type="text"
+                      class="docs-chat__input"
+                      [(ngModel)]="chatQuestion"
+                      name="chatQuestion"
+                      placeholder="Ask a question about this document..."
+                    />
+                    <button type="submit" class="courses-btn courses-btn--primary docs-chat__send" [disabled]="chatLoading || !chatQuestion.trim()">
+                      Ask
+                    </button>
+                  </form>
+                </section>
+              } @else {
+                <div class="courses-modal__empty">
+                  <p>Select a document to preview it.</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

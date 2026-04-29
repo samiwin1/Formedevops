@@ -1,0 +1,203 @@
+<div class="dash-root">
+
+  <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+  <div class="dash-loading" *ngIf="loading">
+    <div class="loading-ring"></div>
+    <p>Loading platform intelligence...</p>
+  </div>
+
+  <ng-container *ngIf="!loading && data">
+
+    <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+    <div class="dash-hero">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          LIVE
+        </div>
+        <h1 class="hero-title">ForME Platform — Admin Overview</h1>
+        <p class="hero-sub">Users · Formations · Certifications · Assessments · Shop · AI Predictions</p>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-health" [ngClass]="platformHealthBadge">
+          <span class="health-dot"></span>
+          {{ healthLabel }}
+        </div>
+        <app-admin-notification-bell></app-admin-notification-bell>
+        <div class="hero-clock">
+          <span class="clock-time">{{ currentTime }}</span>
+          <span class="clock-label">Live System Clock</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KPI Cards ──────────────────────────────────────────────────────── -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="kpi-body">
+          <p class="kpi-label">Total Users</p>
+          <p class="kpi-value">{{ data.totalUsers | number }}</p>
+          <p class="kpi-trend positive"><i class="bi bi-arrow-up-short"></i>+{{ data.newUsersThisWeek }} this week</p>
+        </div>
+      </div>
+
+      <div class="kpi-card teal">
+        <div class="kpi-icon"><i class="bi bi-journal-bookmark-fill"></i></div>
+        <div class="kpi-body">
+          <p class="kpi-label">Active Formations</p>
+          <p class="kpi-value">{{ topFormations.length }}</p>
+          <p class="kpi-trend positive"><i class="bi bi-person-check-fill"></i>{{ totalEnrolled }} enrolled</p>
+        </div>
+      </div>
+
+      <div class="kpi-card indigo">
+        <div class="kpi-icon"><i class="bi bi-patch-check-fill"></i></div>
+        <div class="kpi-body">
+          <p class="kpi-label">Certs Issued</p>
+          <p class="kpi-value">{{ displayIssuedCerts | number }}</p>
+          <p class="kpi-trend" [class.negative]="data.pendingCerts > 20" [class.positive]="data.pendingCerts <= 20">
+            <i class="bi bi-hourglass-split"></i>{{ data.pendingCerts }} pending
+          </p>
+        </div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="kpi-icon"><i class="bi bi-bar-chart-steps"></i></div>
+        <div class="kpi-body">
+          <p class="kpi-label">Avg Assessment Score</p>
+          <p class="kpi-value">{{ avgScore }}%</p>
+          <p class="kpi-trend positive"><i class="bi bi-check2-circle"></i>Pass rate {{ passRate }}%</p>
+        </div>
+      </div>
+
+      <div class="kpi-card amber">
+        <div class="kpi-icon"><i class="bi bi-currency-exchange"></i></div>
+        <div class="kpi-body">
+          <p class="kpi-label">Shop Revenue</p>
+          <p class="kpi-value">{{ (displayRevenue / 1000).toFixed(1) }}K <span class="kpi-currency">TND</span></p>
+          <p class="kpi-trend" [class.positive]="data.revenueGrowth >= 0" [class.negative]="data.revenueGrowth < 0">
+            <i class="bi" [ngClass]="data.revenueGrowth >= 0 ? 'bi-arrow-up-short' : 'bi-arrow-down-short'"></i>
+            {{ data.revenueGrowth >= 0 ? '+' : '' }}{{ data.revenueGrowth }}% vs last week
+          </p>
+        </div>
+      </div>
+
+      <div class="kpi-card purple">
+        <div class="kpi-icon"><i class="bi bi-calendar-event-fill"></i></div>
+        <div class="kpi-body">
+          <p class="kpi-label">Upcoming Sessions</p>
+          <p class="kpi-value">{{ data.upcomingSessions.length }}</p>
+          <p class="kpi-trend neutral"><i class="bi bi-clock-fill"></i>Next 7 days</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Health bars ────────────────────────────────────────────────────── -->
+    <div class="health-grid">
+      <div class="health-card">
+        <div class="health-title-row">
+          <span>Completion Rate</span>
+          <span class="badge" [ngClass]="completionRate >= 70 ? 'good' : completionRate >= 50 ? 'warn' : 'poor'">
+            {{ completionRate >= 70 ? 'Strong' : completionRate >= 50 ? 'Medium' : 'Low' }}
+          </span>
+        </div>
+        <div class="progress-track"><div class="progress-fill blue-fill" [style.width.%]="completionRate"></div></div>
+        <p class="health-value">{{ completionRate }}%</p>
+      </div>
+      <div class="health-card">
+        <div class="health-title-row">
+          <span>Active User Ratio</span>
+          <span class="badge" [ngClass]="activeUserRate >= 60 ? 'good' : activeUserRate >= 40 ? 'warn' : 'poor'">
+            {{ activeUserRate >= 60 ? 'Healthy' : activeUserRate >= 40 ? 'Average' : 'Weak' }}
+          </span>
+        </div>
+        <div class="progress-track"><div class="progress-fill teal-fill" [style.width.%]="activeUserRate"></div></div>
+        <p class="health-value">{{ activeUserRate }}%</p>
+      </div>
+      <div class="health-card">
+        <div class="health-title-row">
+          <span>Assessment Pass Rate</span>
+          <span class="badge" [ngClass]="passRate >= 70 ? 'good' : passRate >= 50 ? 'warn' : 'poor'">
+            {{ passRate >= 70 ? 'Strong' : passRate >= 50 ? 'Medium' : 'Low' }}
+          </span>
+        </div>
+        <div class="progress-track"><div class="progress-fill green-fill" [style.width.%]="passRate"></div></div>
+        <p class="health-value">{{ passRate }}%</p>
+      </div>
+    </div>
+
+    <!-- ── Platform Charts (Chart.js - revenue, users, certs, assessments) ── -->
+    <app-platform-charts [data]="data"></app-platform-charts>
+
+    <!-- ── Certification Analytics Charts (donut + bars) ─────────────────── -->
+    <div class="section-divider">
+      <span class="divider-label"><i class="bi bi-mortarboard-fill"></i> Certification Analytics</span>
+    </div>
+    <app-analytics-charts></app-analytics-charts>
+
+    <!-- ── AI Insights ────────────────────────────────────────────────────── -->
+    <div class="section-divider">
+      <span class="divider-label"><i class="bi bi-stars"></i> AI Platform Insights</span>
+    </div>
+    <app-ai-insights></app-ai-insights>
+
+    <!-- ── Shop Predictions + AI Shop Chat ───────────────────────────────── -->
+    <div class="section-divider">
+      <span class="divider-label"><i class="bi bi-shop"></i> Shop Intelligence</span>
+    </div>
+    <div class="shop-grid">
+      <app-shop-predictions [data]="data"></app-shop-predictions>
+      <app-ai-shop-assistant [data]="data"></app-ai-shop-assistant>
+    </div>
+
+    <!-- ── Learner Funnel + Sessions + Activity Feed ──────────────────────── -->
+    <div class="section-divider">
+      <span class="divider-label"><i class="bi bi-activity"></i> Platform Activity</span>
+    </div>
+    <div class="bottom-grid">
+
+      <app-learner-funnel [analytics]="data.analytics"></app-learner-funnel>
+
+      <div class="sessions-card">
+        <h3 class="section-title">Upcoming Oral Sessions</h3>
+        <div *ngIf="data.upcomingSessions.length === 0" class="empty-state">
+          No sessions scheduled in the next 7 days.
+        </div>
+        <div class="session-list" *ngIf="data.upcomingSessions.length > 0">
+          <div class="session-item" *ngFor="let s of data.upcomingSessions">
+            <div class="session-info">
+              <p class="session-title">{{ s.title || 'Oral Session' }}</p>
+              <p class="session-meta">{{ s.scheduledAt | date:'EEE d MMM · HH:mm' }} · {{ s.learnerCount ?? 0 }} learners</p>
+            </div>
+            <span class="session-badge" [ngClass]="'badge-' + (s.status || 'planned').toLowerCase()">
+              {{ s.status || 'PLANNED' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <app-activity-feed [data]="data"></app-activity-feed>
+
+    </div>
+    <!-- AI Marketing Studio -->
+<div class="section-divider">
+  <h3 class="section-title">
+    <i class="bi bi-lightning-charge-fill"></i> AI Marketing Studio
+  </h3>
+  <app-ai-marketing-creator [data]="data"></app-ai-marketing-creator>
+</div>
+
+      <!-- ── Learner Intelligence Map ──────────────────────────────────── -->
+    <div class="section-divider">
+      <span class="divider-label">
+        <i class="bi bi-diagram-3-fill"></i> Learner Intelligence Map
+      </span>
+    </div>
+    <app-learner-map [data]="data"></app-learner-map>
+    <app-notifications-panel />
+<app-announcements-manager />
+
+
+  </ng-container>
+</div>

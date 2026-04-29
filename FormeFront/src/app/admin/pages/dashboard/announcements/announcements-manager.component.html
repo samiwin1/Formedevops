@@ -1,0 +1,121 @@
+<div class="ann-manager">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title">
+      <span>📢</span>
+      <h3>Announcements</h3>
+    </div>
+    <button class="btn-primary"
+      (click)="showForm ? closeForm() : openNew()"
+      [disabled]="submitting">
+      {{ showForm ? '✕ Cancel' : '+ New Announcement' }}
+    </button>
+  </div>
+
+  <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- Create / Edit Form -->
+  <div class="create-form" *ngIf="showForm">
+    <h4 class="form-title">{{ editingId ? 'Edit Announcement' : 'New Announcement' }}</h4>
+    <input [(ngModel)]="formTitle" placeholder="Title" class="input" maxlength="150" />
+    <textarea [(ngModel)]="formContent" placeholder="Write your announcement…" class="textarea" rows="4"></textarea>
+    <div class="form-group">
+      <label>Image (optional · max 2 MB)</label>
+      <input type="file" accept="image/png,image/jpeg,image/webp"
+             (change)="onImageSelected($event)" />
+      <div *ngIf="formImageBase64" class="img-preview-wrap">
+        <img [src]="formImageBase64" class="img-preview" alt="Preview" />
+        <button type="button" class="btn-remove-img"
+                (click)="formImageBase64 = null">✕ Remove</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <input [(ngModel)]="formEmail" placeholder="Author email (optional)" class="input" />
+      <label class="pin-toggle">
+        <input type="checkbox" [(ngModel)]="formPinned" /> 📌 Pin to top
+      </label>
+      <button class="btn-primary"
+        (click)="submit()"
+        [disabled]="!formTitle.trim() || !formContent.trim() || submitting">
+        {{ submitting ? 'Saving…' : (editingId ? 'Save Changes' : 'Create Draft') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button *ngFor="let tab of tabs" class="tab" [class.active]="activeTab === tab" (click)="activeTab = tab">
+      {{ tab }} <span class="tab-count">{{ tabCount(tab) }}</span>
+    </button>
+  </div>
+
+  <!-- List -->
+  <div class="ann-list" *ngIf="!loading; else spinner">
+    <div *ngIf="visibleAnnouncements.length === 0" class="empty-state">No announcements in this category.</div>
+
+    <div *ngFor="let a of visibleAnnouncements; trackBy: trackById" class="ann-card" [class.pinned]="a.pinned">
+
+      <div class="card-top">
+        <span *ngIf="a.pinned" class="pin-icon">📌</span>
+        <span class="ann-title">{{ a.title }}</span>
+        <span class="ann-badge" [ngClass]="statusClass(a.status)">{{ statusLabel(a.status) }}</span>
+      </div>
+
+      <img *ngIf="extractImage(a.content)"
+           [src]="extractImage(a.content)"
+           class="announcement-card-img"
+           alt="Announcement image" />
+      <p class="ann-content">{{ stripImage(a.content) }}</p>
+
+      <div class="card-meta">
+        <span *ngIf="a.createdByEmail">By {{ a.createdByEmail }}</span>
+        <span>Created {{ formatDate(a.createdAt) }}</span>
+        <span *ngIf="a.publishedAt">Published {{ formatDate(a.publishedAt) }}</span>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-ghost-sm"
+          (click)="togglePin(a)"
+          [disabled]="isBusy(a.id) || !canManage"
+          [title]="a.pinned ? 'Unpin' : 'Pin'">
+          {{ a.pinned ? '📌 Unpin' : '📌 Pin' }}
+        </button>
+
+        <button class="btn-ghost-sm"
+          *ngIf="a.status !== 'ARCHIVED'"
+          (click)="openEdit(a)"
+          [disabled]="isBusy(a.id)">
+          ✏️ Edit
+        </button>
+
+        <button class="btn-publish"
+          *ngIf="a.status === 'DRAFT'"
+          (click)="publish(a)"
+          [disabled]="isBusy(a.id) || !canPublish"
+          [title]="canPublish ? 'Publish this announcement' : 'Publishing requires a super-admin account'">
+          {{ isBusy(a.id) ? '…' : '📢 Publish' }}
+        </button>
+
+        <button class="btn-ghost-sm"
+          *ngIf="a.status === 'PUBLISHED'"
+          (click)="archive(a)"
+          [disabled]="isBusy(a.id) || !canPublish"
+          [title]="canPublish ? 'Archive this announcement' : 'Archiving requires a super-admin account'">
+          {{ isBusy(a.id) ? '…' : '📦 Archive' }}
+        </button>
+
+        <button class="btn-delete"
+          (click)="confirmDelete(a)"
+          [disabled]="isBusy(a.id)">
+          {{ isBusy(a.id) ? '…' : '🗑️ Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #spinner>
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </ng-template>
+
+</div>

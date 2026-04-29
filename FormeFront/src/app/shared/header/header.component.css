@@ -1,0 +1,205 @@
+:host { display:block; }
+
+/* Header container */
+.fm-header{
+  position: sticky;
+  top: 0;
+  z-index: 99999;
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(16,24,40,.08);
+}
+
+/* layout */
+.fm-container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* brand */
+.fm-brand{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+.fm-logo{
+  width: 42px; height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(135deg, #1acc8d 0%, #13b07b 60%, #0ea36f 100%);
+  box-shadow: 0 14px 30px rgba(26,204,141,.22);
+}
+.fm-brand-text{ display:flex; flex-direction:column; line-height:1.05; }
+.fm-brand-name{ font-weight: 900; color:#0b1a2b; font-size:18px; letter-spacing:-.02em; }
+.fm-brand-sub{ font-size:12px; color: rgba(11,26,43,.60); font-weight:600; }
+
+/* nav */
+.fm-nav{
+  flex: 1 1 auto;
+  justify-content: center;
+  display: flex;
+  gap: 10px;
+}
+.fm-nav a{
+  text-decoration: none;
+  font-weight: 800;
+  color: rgba(11,26,43,.78);
+  padding: 10px 12px;
+  border-radius: 999px;
+  transition: .15s ease;
+}
+.fm-nav a:hover{
+  background: rgba(26,204,141,.10);
+  color:#0b1a2b;
+}
+.fm-nav a.active{
+  background: rgba(26,204,141,.16);
+  color:#0b1a2b;
+}
+
+/* actions */
+.fm-actions{ flex: 0 0 auto; display:flex; align-items:center; gap:10px; }
+
+/* buttons */
+.fm-btn{
+  height: 40px;
+  border-radius: 999px;
+  font-weight: 900;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.fm-btn i{ font-size: 16px; }
+
+.fm-btn-primary{
+  border: none;
+  color:#fff;
+  background: linear-gradient(135deg, #1acc8d 0%, #13b07b 60%, #0ea36f 100%);
+  box-shadow: 0 14px 30px rgba(26,204,141,.22);
+}
+.fm-btn-primary:hover{ transform: translateY(-1px); box-shadow: 0 18px 40px rgba(26,204,141,.26); }
+
+.fm-btn-ghost{
+  border: 1px solid rgba(16,24,40,.12);
+  background: rgba(255,255,255,.70);
+  color: rgba(11,26,43,.88);
+}
+.fm-btn-ghost:hover{
+  border-color: rgba(26,204,141,.45);
+  box-shadow: 0 0 0 .2rem rgba(26,204,141,.12);
+  color:#0b1a2b;
+}
+
+.fm-btn-danger{
+  border: 1px solid rgba(220,53,69,.25);
+  background: rgba(220,53,69,.08);
+  color: #dc3545;
+}
+
+/* user dropdown */
+.fm-dropdown{ position: relative; }
+.fm-user{
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(16,24,40,.12);
+  background: rgba(255,255,255,.75);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  font-weight: 900;
+  color: rgba(11,26,43,.88);
+}
+.fm-avatar{
+  width: 28px; height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(26,204,141,.18);
+  font-weight: 900;
+}
+.fm-menu{
+  position: absolute;
+  right: 0;
+  top: 48px;
+  min-width: 220px;
+  border-radius: 16px;
+  border: 1px solid rgba(16,24,40,.10);
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(16,24,40,.12);
+  padding: 8px;
+}
+.fm-menu a, .fm-menu button{
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  color: rgba(11,26,43,.88);
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.fm-menu a:hover, .fm-menu button:hover{
+  background: rgba(26,204,141,.10);
+}
+.fm-menu button.danger{
+  color: #dc3545;
+}
+.fm-sep{
+  height: 1px;
+  margin: 6px 0;
+  background: rgba(16,24,40,.10);
+}
+
+/* burger */
+.fm-burger{
+  border: 1px solid rgba(16,24,40,.12);
+  background: rgba(255,255,255,.75);
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+.fm-burger i{ font-size: 22px; color: rgba(11,26,43,.85); }
+
+/* mobile panel */
+.fm-mobile{
+  border-top: 1px solid rgba(16,24,40,.08);
+  background: rgba(255,255,255,.96);
+}
+.fm-mobile-nav{
+  display: grid;
+  padding: 12px 16px;
+  gap: 8px;
+}
+.fm-mobile-nav a{
+  padding: 12px 12px;
+  border-radius: 14px;
+  font-weight: 900;
+  text-decoration:none;
+  color: rgba(11,26,43,.85);
+}
+.fm-mobile-nav a.active{
+  background: rgba(26,204,141,.16);
+}
+.fm-mobile-actions{
+  display: grid;
+  gap: 10px;
+  padding: 0 16px 16px;
+}

@@ -1,0 +1,136 @@
+<div class="evaluation-quiz">
+  <div class="quiz-header">
+    <h5 class="quiz-title">
+      <i class="bi bi-patch-question-fill me-2"></i>{{ evaluation.title }}
+    </h5>
+  </div>
+
+  @if (loadingAttempts) {
+    <div class="quiz-loading">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 mb-0 text-muted">Loading quiz...</p>
+    </div>
+  } @else if (alreadyPassed) {
+    <div class="quiz-result-card success">
+      <div class="result-icon">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <h6 class="result-title">You have already passed this quiz</h6>
+      <p class="result-desc mb-0">You can continue to the next section.</p>
+      <button class="btn btn-primary btn-continue" (click)="onComplete(true)">
+        <i class="bi bi-arrow-right me-2"></i>Continue
+      </button>
+    </div>
+  } @else if (noAttemptsLeft) {
+    <div class="quiz-result-card warning">
+      <div class="result-icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <h6 class="result-title">Maximum attempts reached</h6>
+      <p class="result-desc mb-0">You have used all {{ maxAttempts }} attempts. To try again, you must redo the entire formation from the beginning — read all content blocks and pass all evaluations in order.</p>
+      <div class="quiz-result-actions">
+        <button class="btn btn-primary btn-continue" (click)="onResetRequested()" [disabled]="resetting">
+          @if (resetting) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          <i class="bi bi-arrow-right me-2"></i>Start over
+        </button>
+        <button class="btn btn-outline-secondary" (click)="onComplete(false)">Back</button>
+      </div>
+    </div>
+  } @else if (!submitted) {
+    @if (structuredContent) {
+      <div class="quiz-questions">
+        @for (q of structuredContent.questions; track $index; let i = $index) {
+          <div class="question-block">
+            <p class="question-text">{{ i + 1 }}. {{ q.text }}</p>
+            <div class="options-list">
+              @for (opt of q.options; track $index; let j = $index) {
+                <label class="option-item" [for]="'q' + i + '_' + j">
+                  <input
+                    type="radio"
+                    [name]="'q' + i"
+                    [id]="'q' + i + '_' + j"
+                    [value]="j"
+                    [(ngModel)]="userSelections[i]"
+                    class="form-check-input"
+                  />
+                  <span class="option-label">{{ opt }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="quiz-freeform">
+        <div class="quiz-content" [innerHTML]="evaluation.content || 'No questions defined.'"></div>
+        <div class="freeform-input">
+          <label class="form-label">Your answer / notes</label>
+          <textarea
+            class="form-control"
+            rows="5"
+            [(ngModel)]="userAnswers"
+            placeholder="Enter your response..."
+          ></textarea>
+          <p class="form-hint">Free-form answers are submitted for manual review.</p>
+        </div>
+      </div>
+    }
+
+    @if (error) {
+      <div class="alert alert-danger alert-dismissible">
+        <i class="bi bi-exclamation-circle me-2"></i>{{ error }}
+      </div>
+    }
+    <div class="quiz-actions">
+      <button class="btn btn-primary btn-submit" (click)="submit()" [disabled]="loading || !canSubmit">
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm me-2"></span>
+        }
+        <i class="bi bi-send-fill me-2"></i>Submit
+      </button>
+      <button class="btn btn-outline-secondary" (click)="onComplete(false)">Cancel</button>
+      @if (attemptCount > 0) {
+        <span class="attempt-badge">Attempt {{ attemptCount + 1 }} of {{ maxAttempts }}</span>
+      }
+    </div>
+  } @else {
+    @if (passed) {
+      <div class="quiz-result-card success">
+        <div class="result-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h6 class="result-title">Great, you are learning!</h6>
+        <p class="result-score">Score: {{ score }}% <span class="text-muted">(required: {{ evaluation.passing_score ?? 75 }}%)</span></p>
+        <p class="result-desc mb-0">You passed this quiz. Keep going!</p>
+        <button class="btn btn-primary btn-continue" (click)="onComplete(true)">
+          <i class="bi bi-arrow-right me-2"></i>Continue
+        </button>
+      </div>
+    } @else {
+      <div class="quiz-result-card failed">
+        <div class="result-icon">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <h6 class="result-title">Not passed</h6>
+        <p class="result-score">Score: {{ score }}% <span class="text-muted">(required: {{ evaluation.passing_score ?? 75 }}%)</span></p>
+        <p class="result-desc">Please review the content and try again.</p>
+        @if (mistakeExplanations.length) {
+          <div class="ai-explanations mt-3">
+            <h6><i class="bi bi-lightbulb me-2"></i>AI Explanation</h6>
+            @for (item of mistakeExplanations; track $index) {
+              <div class="explanation-item mb-3">
+                <p class="question-ref fw-medium mb-1">{{ item.questionText }}</p>
+                <p class="explanation-text text-muted small mb-0">{{ item.aiExplanation }}</p>
+              </div>
+            }
+          </div>
+        }
+        <button class="btn btn-primary btn-continue" (click)="tryAgain()">
+          <i class="bi bi-arrow-counterclockwise me-2"></i>Try again
+        </button>
+      </div>
+    }
+  }
+</div>

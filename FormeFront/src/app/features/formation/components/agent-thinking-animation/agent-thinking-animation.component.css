@@ -1,0 +1,12 @@
+.agent-thinking-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+}
+
+.agent-thinking-frame {
+  max-height: 120px;
+  max-width: 100%;
+  object-fit: contain;
+}

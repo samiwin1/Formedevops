@@ -1,0 +1,630 @@
+<section class="admin-page" [ngClass]="{ 'cert-mode': isCertificationMode(), 'oral-mode': isOralMode() }">
+  <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+  <!-- Floating Action Button for Certification Mode -->
+  <button 
+    *ngIf="isCertificationMode() && !showCertificationForm" 
+    type="button" 
+    class="fab-button" 
+    (click)="startCreateCertification()"
+    title="Create New Certification">
+    <i class="bi bi-plus-lg"></i>
+  </button>
+
+  <!-- Floating Action Buttons for Oral Mode -->
+  <div *ngIf="isOralMode()" class="fab-group">
+    <button type="button" class="fab-button fab-reschedule" (click)="openRescheduleModal()" title="View Reschedule Requests">
+      <i class="bi bi-arrow-repeat"></i>
+      <span class="fab-badge" *ngIf="pendingRescheduleRequests.length > 0">{{ pendingRescheduleRequests.length }}</span>
+    </button>
+    <button type="button" class="fab-button fab-secondary" (click)="openAssignLearnerModal()" title="Assign Learner">
+      <i class="bi bi-person-plus"></i>
+    </button>
+    <button type="button" class="fab-button" (click)="startCreateOralSession()" title="Create New Oral Session">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
+
+  <!-- Certification Form Modal -->
+  <div class="modal-backdrop" *ngIf="isCertificationMode() && showCertificationForm" (click)="cancelCertificationEdit()">
+    <div class="modal-container cert-modal" (click)="$event.stopPropagation()">
+      <div class="cert-form-header">
+        <div>
+          <h2 class="cert-form-title">{{ editingCertificationId ? 'Update' : 'Create' }} Certification</h2>
+          <p class="cert-form-subtitle">{{ editingCertificationId ? 'Modify certification details below' : 'Fill in the details to create a new certification' }}</p>
+        </div>
+        <button type="button" class="btn-close-form" (click)="cancelCertificationEdit()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="cert-form-body">
+        <form [formGroup]="certificationForm" (ngSubmit)="submitCertification()">
+          <div class="form-section">
+            <h3 class="form-section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-field full-width">
+                <label>Certification Title <span class="required">*</span></label>
+                <input class="form-control" placeholder="e.g., Java Architect, AWS Solutions Architect" formControlName="title" />
+                <small class="form-hint">Enter a clear, descriptive title for the certification</small>
+              </div>
+              <div class="form-field">
+                <label>Domain</label>
+                <input class="form-control" placeholder="e.g., Software, Cloud, Data" formControlName="domain" />
+              </div>
+              <div class="form-field">
+                <label>Provider</label>
+                <input class="form-control" placeholder="e.g., ForMe, AWS, Microsoft" formControlName="provider" />
+              </div>
+              <div class="form-field">
+                <label>Level</label>
+                <input class="form-control" placeholder="e.g., Beginner, Intermediate, Advanced" formControlName="level" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Certification Parameters</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Validity Period <span class="required">*</span></label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-control" formControlName="validityMonths" min="1" />
+                  <span class="input-suffix">months</span>
+                </div>
+              </div>
+              <div class="form-field">
+                <label>Passing Threshold <span class="required">*</span></label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-control" formControlName="thresholdFinal" min="0" max="100" />
+                  <span class="input-suffix">%</span>
+                </div>
+              </div>
+              <div class="form-field">
+                <label>Written Exam Weight <span class="required">*</span></label>
+                <div class="input-with-suffix">
+                  <input type="number" step="0.01" class="form-control" formControlName="weightWritten" min="0" max="1" />
+                  <span class="input-suffix">weight</span>
+                </div>
+                <small class="form-hint">Value between 0 and 1</small>
+              </div>
+              <div class="form-field">
+                <label>Oral Exam Weight <span class="required">*</span></label>
+                <div class="input-with-suffix">
+                  <input type="number" step="0.01" class="form-control" formControlName="weightOral" min="0" max="1" />
+                  <span class="input-suffix">weight</span>
+                </div>
+                <small class="form-hint">Value between 0 and 1</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-outline btn-cancel" type="button" (click)="cancelCertificationEdit()">
+              <i class="bi bi-x-circle"></i> Cancel
+            </button>
+            <button class="btn btn-green btn-submit" type="submit">
+              <i class="bi bi-check-circle"></i> {{ editingCertificationId ? 'Update Certification' : 'Save Certification' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Oral Session Form Modal -->
+  <div class="modal-backdrop" *ngIf="isOralMode() && showOralForm" (click)="cancelOralEdit()">
+    <div class="modal-container session-modal" (click)="$event.stopPropagation()">
+      <div class="session-form-header">
+        <div>
+          <h2 class="session-form-title">
+            <i class="bi bi-calendar-plus"></i>
+            {{ editingSessionId ? 'Update' : 'Create' }} Oral Session
+          </h2>
+          <p class="session-form-subtitle">{{ editingSessionId ? 'Modify session details below' : 'Fill in the details to create a new oral session' }}</p>
+        </div>
+        <button type="button" class="btn-close-form" (click)="cancelOralEdit()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="session-form-body">
+        <form [formGroup]="sessionForm" (ngSubmit)="submitSession()">
+          <div class="form-section">
+            <h3 class="form-section-title">Session Information</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Certification <span class="required">*</span></label>
+                <select class="form-select" formControlName="certificationId">
+                  <option [ngValue]="null" disabled>Select certification</option>
+                  <option *ngFor="let certification of certifications" [ngValue]="certification.id">
+                    {{ certification.title }} (#{{ certification.id }})
+                  </option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Session Title <span class="required">*</span></label>
+                <input class="form-control" placeholder="e.g., Java Oral - Batch A" formControlName="title" />
+              </div>
+              <div class="form-field">
+                <label>Evaluator <span class="required">*</span></label>
+                <select class="form-select" formControlName="evaluatorId">
+                  <option [ngValue]="null" disabled>Select evaluator</option>
+                  <option *ngFor="let evaluator of evaluatorOptions" [ngValue]="evaluator.userId">
+                    {{ evaluator.displayName }} (#{{ evaluator.userId }})
+                  </option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Scheduled At <span class="required">*</span></label>
+                <input type="datetime-local" class="form-control" formControlName="scheduledAt" />
+              </div>
+              <div class="form-field">
+                <label>Duration <span class="required">*</span></label>
+                <div class="input-with-suffix">
+                  <input type="number" class="form-control" formControlName="durationMinutes" min="1" />
+                  <span class="input-suffix">minutes</span>
+                </div>
+              </div>
+              <div class="form-field">
+                <label>Status <span class="required">*</span></label>
+                <select class="form-select" formControlName="status">
+                  <option *ngFor="let status of sessionStatuses" [value]="status">{{ status }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="form-section-title">Meeting Details</h3>
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Meeting Provider <span class="required">*</span></label>
+                <select class="form-select" formControlName="meetingProvider">
+                  <option *ngFor="let provider of meetingProviders" [value]="provider">{{ provider }}</option>
+                </select>
+              </div>
+              <div class="form-field full-width">
+                <label>Meeting Link <span class="required">*</span></label>
+                <input class="form-control" placeholder="https://meet.google.com/..." formControlName="meetingLink" />
+                <small class="form-hint">Enter the full meeting URL</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-outline btn-cancel" type="button" (click)="cancelOralEdit()">
+              <i class="bi bi-x-circle"></i> Cancel
+            </button>
+            <button class="btn btn-green btn-submit" type="submit">
+              <i class="bi bi-check-circle"></i> {{ editingSessionId ? 'Update Session' : 'Save Session' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reschedule Requests Modal -->
+  <div class="modal-backdrop" *ngIf="isOralMode() && showRescheduleModal" (click)="closeRescheduleModal()">
+    <div class="modal-container reschedule-modal" (click)="$event.stopPropagation()">
+      <div class="reschedule-modal-header">
+        <div>
+          <h2 class="reschedule-modal-title">
+            <i class="bi bi-arrow-repeat"></i>
+            Reschedule Requests
+          </h2>
+          <p class="reschedule-modal-subtitle">Review and manage learner reschedule requests</p>
+        </div>
+        <button type="button" class="btn-close-form" (click)="closeRescheduleModal()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="reschedule-modal-body">
+        <div class="reschedule-loading" *ngIf="rescheduleLoading">
+          <div class="spinner-small"></div>
+          <p>Loading requests...</p>
+        </div>
+        <div class="reschedule-empty" *ngIf="!rescheduleLoading && pendingRescheduleRequests.length === 0">
+          <i class="bi bi-inbox"></i>
+          <h3>No Pending Requests</h3>
+          <p>There are no reschedule requests at this time.</p>
+        </div>
+        <div class="reschedule-grid" *ngIf="!rescheduleLoading && pendingRescheduleRequests.length > 0">
+          <article class="reschedule-request-card" *ngFor="let item of pendingRescheduleRequests">
+            <div class="reschedule-request-header">
+              <div class="request-id-badge-small">
+                <i class="bi bi-hash"></i>{{ item.id }}
+              </div>
+              <div class="request-learner-info">
+                <h4 class="request-learner-name">
+                  <i class="bi bi-person-circle"></i>
+                  {{ item.learnerName || ('Learner #' + item.learnerId) }}
+                </h4>
+                <p class="request-timestamp">
+                  <i class="bi bi-clock"></i>
+                  {{ item.requestedAt | date:'medium' }}
+                </p>
+              </div>
+              <span class="request-status-badge" [ngClass]="{
+                'status-pending': item.status === 'PENDING',
+                'status-approved': item.status === 'APPROVED',
+                'status-rejected': item.status === 'REJECTED'
+              }">{{ item.status }}</span>
+            </div>
+            
+            <div class="reschedule-request-body">
+              <div class="dates-comparison">
+                <div class="date-item current-date">
+                  <div class="date-item-label">
+                    <i class="bi bi-calendar-x"></i>
+                    Current
+                  </div>
+                  <div class="date-item-value">{{ item.sessionScheduledAt | date:'short' }}</div>
+                </div>
+                <div class="date-arrow-icon">
+                  <i class="bi bi-arrow-right"></i>
+                </div>
+                <div class="date-item proposed-date">
+                  <div class="date-item-label">
+                    <i class="bi bi-calendar-check"></i>
+                    Proposed
+                  </div>
+                  <div class="date-item-value">{{ item.proposedDatetime | date:'short' }}</div>
+                </div>
+              </div>
+
+              <div class="request-reason-box">
+                <div class="reason-box-label">
+                  <i class="bi bi-chat-left-text"></i>
+                  Reason
+                </div>
+                <div class="reason-box-text">{{ item.message || 'No reason provided' }}</div>
+              </div>
+
+              <div class="request-actions-section">
+                <div class="replacement-field">
+                  <label class="replacement-field-label">
+                    <i class="bi bi-calendar-plus"></i>
+                    Replacement Session
+                  </label>
+                  <select
+                    class="form-select-small"
+                    [ngModel]="replacementSessionByRequestId[item.id] ?? null"
+                    (ngModelChange)="replacementSessionByRequestId[item.id] = $event">
+                    <option [ngValue]="null">No replacement</option>
+                    <option *ngFor="let replacement of replacementOptionsFor(item)" [ngValue]="replacement.id">
+                      #{{ replacement.id }} - {{ replacement.title }} - {{ replacement.scheduledAt | date:'short' }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="comment-field">
+                  <label class="comment-field-label">
+                    <i class="bi bi-pencil"></i>
+                    Comment
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control-small"
+                    [ngModel]="rescheduleCommentById[item.id] || ''"
+                    (ngModelChange)="rescheduleCommentById[item.id] = $event"
+                    placeholder="Optional admin comment..." />
+                </div>
+
+                <div class="action-buttons-row">
+                  <button
+                    class="btn-approve-small"
+                    type="button"
+                    [disabled]="processingRescheduleId !== null"
+                    (click)="approveReschedule(item)">
+                    <i class="bi bi-check-circle"></i>
+                    Approve
+                  </button>
+                  <button
+                    class="btn-reject-small"
+                    type="button"
+                    [disabled]="processingRescheduleId !== null"
+                    (click)="rejectReschedule(item)">
+                    <i class="bi bi-x-circle"></i>
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+  </div>
+
+  <div *ngIf="isCertificationMode()" class="certifications-section">
+    <div class="certifications-header">
+      <div class="certifications-title">
+        <i class="bi bi-list-check"></i>
+        <h2>Certification Catalog</h2>
+      </div>
+      <div class="certifications-controls">
+        <span class="count-badge">{{ filteredCertifications.length }} certification{{ filteredCertifications.length !== 1 ? 's' : '' }}</span>
+        <select class="form-select cc-head-filter" [(ngModel)]="certificationStatusFilter" (ngModelChange)="onCertificationFilter()">
+          <option value="ALL">All statuses</option>
+          <option value="DRAFT">Draft</option>
+          <option value="PUBLISHED">Published</option>
+          <option value="ARCHIVED">Archived</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="search-toolbar">
+      <div class="search-input-wrapper">
+        <i class="bi bi-search"></i>
+        <input
+          class="form-control search-input"
+          placeholder="Search by title, domain, level, provider..."
+          [(ngModel)]="certificationSearch"
+          (ngModelChange)="onCertificationSearch()" />
+      </div>
+    </div>
+
+    <div class="list-cards-grid" *ngIf="filteredCertifications.length > 0; else emptyCertifications">
+      <article class="list-card" *ngFor="let certification of pagedCertifications">
+        <div class="list-card-head">
+          <h6 class="mb-0">{{ certification.title }}</h6>
+          <span class="badge status-badge" [ngClass]="certification.status.toLowerCase()">{{ certification.status }}</span>
+        </div>
+        <div class="list-card-meta">
+          <div><span>Domain</span><strong>{{ certification.domain || '-' }}</strong></div>
+          <div><span>Level</span><strong>{{ certification.level || '-' }}</strong></div>
+          <div><span>Validity</span><strong>{{ certification.validityMonths }} mo</strong></div>
+          <div><span>Threshold</span><strong>{{ certification.thresholdFinal }}</strong></div>
+        </div>
+        <div class="list-card-actions">
+          <button class="btn btn-sm btn-outline-secondary" (click)="editCertification(certification)">EDIT</button>
+          <button class="btn btn-sm btn-outline-success" (click)="publishCertification(certification.id)" [disabled]="certification.status === 'PUBLISHED'">PUBLISH</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="list-pagination mt-3" *ngIf="filteredCertifications.length > 0">
+      <button class="btn btn-sm btn-outline-secondary" (click)="previousCertificationPage()" [disabled]="certificationPage <= 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span>Page {{ certificationPage }} / {{ certificationTotalPages }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="nextCertificationPage()" [disabled]="certificationPage >= certificationTotalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+
+    <ng-template #emptyCertifications>
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Certifications Found</h3>
+        <p>No certifications match your search or filter criteria.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <div *ngIf="isOralMode()" class="sessions-section">
+    <div class="sessions-header">
+      <div class="sessions-title">
+        <i class="bi bi-calendar3"></i>
+        <h2>Oral Sessions</h2>
+      </div>
+      <div class="sessions-controls">
+        <span class="count-badge">{{ filteredSessions.length }} session{{ filteredSessions.length !== 1 ? 's' : '' }}</span>
+        <select class="form-select cc-head-filter" [(ngModel)]="sessionStatusFilter" (ngModelChange)="onSessionFilter()">
+          <option value="ALL">All status</option>
+          <option value="PLANNED">Planned</option>
+          <option value="DONE">Done</option>
+          <option value="CANCELED">Canceled</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="search-toolbar">
+      <div class="search-input-wrapper">
+        <i class="bi bi-search"></i>
+        <input
+          class="form-control search-input"
+          placeholder="Search by title, evaluator, status..."
+          [(ngModel)]="sessionSearch"
+          (ngModelChange)="onSessionSearch()" />
+      </div>
+    </div>
+
+    <div class="list-cards-grid" *ngIf="filteredSessions.length > 0; else emptySessions">
+      <article class="list-card session-card" *ngFor="let session of pagedSessions">
+        <div class="list-card-head">
+          <div class="session-id-title">
+            <span class="session-id">#{{ session.id }}</span>
+            <h6 class="mb-0">{{ session.title }}</h6>
+          </div>
+          <span class="badge status-badge" [ngClass]="session.status.toLowerCase()">{{ session.status }}</span>
+        </div>
+        <div class="list-card-meta">
+          <div class="meta-highlight">
+            <span><i class="bi bi-calendar-event"></i> Scheduled</span>
+            <strong>{{ session.scheduledAt | date:'medium' }}</strong>
+          </div>
+          <div>
+            <span><i class="bi bi-person-badge"></i> Evaluator</span>
+            <strong>{{ displayUserName(session.evaluatorId, 'Evaluator') }}</strong>
+          </div>
+          <div>
+            <span><i class="bi bi-award"></i> Certification</span>
+            <strong>{{ session.certificationTitle || ('Certification #' + session.certificationId) }}</strong>
+          </div>
+          <div>
+            <span><i class="bi bi-clock"></i> Duration</span>
+            <strong>{{ session.durationMinutes }} min</strong>
+          </div>
+          <div>
+            <span><i class="bi bi-camera-video"></i> Provider</span>
+            <strong>{{ session.meetingProvider }}</strong>
+          </div>
+          <div class="meta-link">
+            <span><i class="bi bi-link-45deg"></i> Meeting Link</span>
+            <a [href]="session.meetingLink" target="_blank" class="meeting-link">
+              {{ session.meetingLink | slice:0:40 }}{{ session.meetingLink.length > 40 ? '...' : '' }}
+            </a>
+          </div>
+        </div>
+        <div class="list-card-actions">
+          <button type="button" class="btn btn-outline-success" (click)="openAssignLearnerModal(session.id)">
+            <i class="bi bi-person-plus"></i> ASSIGN
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="openReassignModal(session)">
+            <i class="bi bi-arrow-repeat"></i> REASSIGN
+          </button>
+          <button type="button" class="btn btn-outline-danger" (click)="deleteSession(session)">
+            <i class="bi bi-trash"></i> DELETE
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <div class="list-pagination" *ngIf="filteredSessions.length > 0">
+      <button class="btn btn-sm btn-outline-secondary" (click)="previousSessionPage()" [disabled]="sessionPage <= 1">
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span>Page {{ sessionPage }} / {{ sessionTotalPages }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="nextSessionPage()" [disabled]="sessionPage >= sessionTotalPages">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+
+    <ng-template #emptySessions>
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Sessions Found</h3>
+        <p>No oral sessions match your search or filter criteria.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Assign Learner Modal -->
+  <div class="modal-backdrop" *ngIf="isOralMode() && showAssignLearnerModal" (click)="closeAssignLearnerModal()">
+    <div class="modal-container assign-modal" (click)="$event.stopPropagation()">
+      <div class="assign-modal-header">
+        <div>
+          <h2 class="assign-modal-title">
+            <i class="bi bi-person-plus-fill"></i>
+            Assign Learners
+          </h2>
+          <p class="assign-modal-subtitle">Assign one or more learners to an oral session</p>
+        </div>
+        <button type="button" class="btn-close-form" (click)="closeAssignLearnerModal()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <form [formGroup]="assignmentForm" (ngSubmit)="submitAssignment()" class="assign-modal-body">
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+        <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+        
+        <div class="form-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="form-section-title mb-0">Learners <span class="required">*</span></h3>
+            <button class="btn btn-sm btn-outline-primary add-learner-btn" type="button" (click)="addLearnerRow()">
+              <i class="bi bi-plus-circle"></i> Add Learner
+            </button>
+          </div>
+          <div formArrayName="learners" class="learners-list">
+            <div *ngFor="let row of learnersArray.controls; let i = index" [formGroupName]="i" class="learner-row">
+              <div class="learner-select-wrapper">
+                <select class="form-select" formControlName="learnerId">
+                  <option [ngValue]="null" disabled>Select learner</option>
+                  <option *ngFor="let learner of learnerOptions" [ngValue]="learner.userId">
+                    {{ learner.displayName }} (#{{ learner.userId }}){{ learner.profession ? (' - ' + learner.profession) : '' }}
+                  </option>
+                </select>
+                <small class="text-danger" *ngIf="assignmentSubmitAttempted && row.controls.learnerId.invalid">
+                  Learner is required.
+                </small>
+                <small class="text-danger" *ngIf="hasDuplicateLearnerAt(i)">
+                  This learner is selected more than once.
+                </small>
+              </div>
+              <button class="btn btn-sm btn-outline-danger remove-btn" type="button" (click)="removeLearnerRow(i)" [disabled]="learnersArray.length <= 1">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Session & Formation Details</h3>
+          <div class="form-grid">
+            <div class="form-field full-width">
+              <label>Oral Session <span class="required">*</span></label>
+              <select class="form-select" formControlName="oralSessionId">
+                <option [ngValue]="null" disabled>Select oral session</option>
+                <option *ngFor="let session of sessions" [ngValue]="session.id">
+                  #{{ session.id }} - {{ session.title }} - {{ session.scheduledAt | date:'short' }}
+                </option>
+              </select>
+              <small class="text-danger" *ngIf="assignmentSubmitAttempted && assignmentForm.controls.oralSessionId.invalid">
+                Oral session is required.
+              </small>
+            </div>
+            <div class="form-field">
+              <label>Assignment Status <span class="required">*</span></label>
+              <select class="form-select" formControlName="assignmentStatus">
+                <option *ngFor="let status of assignmentStatuses" [value]="status">{{ status }}</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Formation <span class="required">*</span></label>
+              <select class="form-select" formControlName="formationId" *ngIf="formationOptions.length > 0; else manualFormationInput">
+                <option [ngValue]="null" disabled>Select formation</option>
+                <option *ngFor="let formation of formationOptions" [ngValue]="formation.id">
+                  {{ formation.title }} (#{{ formation.id }})
+                </option>
+              </select>
+              <ng-template #manualFormationInput>
+                <input type="number" min="1" class="form-control" formControlName="formationId" placeholder="Enter formation ID" />
+                <small class="form-hint">Formation list unavailable, enter ID manually.</small>
+              </ng-template>
+              <small class="text-danger" *ngIf="assignmentSubmitAttempted && assignmentForm.controls.formationId.invalid">
+                Valid formation is required.
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="form-section-title">Additional Information</h3>
+          <div class="form-grid">
+            <div class="form-field full-width">
+              <label>Reassign Evaluator</label>
+              <select class="form-select" formControlName="reassignedEvaluatorId">
+                <option [ngValue]="null">Keep current evaluator</option>
+                <option *ngFor="let evaluator of evaluatorOptions" [ngValue]="evaluator.userId">
+                  {{ evaluator.displayName }} (#{{ evaluator.userId }}){{ evaluator.profession ? (' - ' + evaluator.profession) : '' }}
+                </option>
+              </select>
+              <small class="form-hint" *ngIf="assignmentForm.value.reassignedEvaluatorId as evaluatorId">
+                Selected: {{ displayUserName(evaluatorId, 'Evaluator') }}
+              </small>
+            </div>
+            <div class="form-field full-width">
+              <label>Evaluator Comment</label>
+              <textarea rows="3" class="form-control" formControlName="evaluatorComment" placeholder="Add any special instructions or notes for the evaluator..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-outline btn-cancel" type="button" (click)="closeAssignLearnerModal()">
+            <i class="bi bi-x-circle"></i> Cancel
+          </button>
+          <button class="btn btn-green btn-submit" type="submit" [disabled]="assignmentSaving">
+            <i class="bi bi-check-circle"></i> {{ assignmentSaving ? 'Saving...' : 'Save Assignment' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

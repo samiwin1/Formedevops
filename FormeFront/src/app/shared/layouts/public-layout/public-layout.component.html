@@ -1,0 +1,10 @@
+<app-header></app-header>
+
+<main id="main" class="main">
+  <router-outlet></router-outlet>
+</main>
+
+@if (!isFormationRoute) {
+  <app-footer></app-footer>
+}
+<app-footer *ngIf="!hideFooterForCurrentRoute()"></app-footer>

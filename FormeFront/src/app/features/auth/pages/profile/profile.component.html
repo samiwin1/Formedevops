@@ -1,0 +1,122 @@
+<section class="pf-wrap">
+  <div class="pf-container">
+    <div class="pf-card">
+      <!-- Top banner -->
+      <div class="pf-hero">
+        <div class="pf-hero-left">
+          <div class="pf-avatar">
+            <span>{{ (email?.[0] || 'U') | uppercase }}</span>
+          </div>
+
+          <div class="pf-title">
+            <h1>My Profile</h1>
+            <p>Manage your account details and security settings.</p>
+          </div>
+        </div>
+
+        <div class="pf-hero-actions">
+          <button class="pf-btn pf-btn-light" type="button" (click)="copyEmail()" [disabled]="!email">
+            <i class="bi bi-copy"></i>
+            Copy email
+          </button>
+
+          <button class="pf-btn pf-btn-danger" type="button" (click)="logout()">
+            <i class="bi bi-box-arrow-right"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="pf-body">
+        <div class="pf-grid">
+          <!-- Account info -->
+          <div class="pf-panel">
+            <div class="pf-panel-head">
+              <div>
+                <h2>Account</h2>
+                <span class="pf-sub">Your identity & access</span>
+              </div>
+              <span class="pf-pill">
+                <i class="bi bi-shield-check"></i>
+                Active
+              </span>
+            </div>
+
+            <div class="pf-row">
+              <div class="pf-label">Email</div>
+              <div class="pf-value">
+                <span class="pf-mono">{{ email || '—' }}</span>
+                <span class="pf-muted" *ngIf="email">Primary</span>
+              </div>
+            </div>
+
+            <div class="pf-row">
+              <div class="pf-label">User ID</div>
+              <div class="pf-value">
+                <span class="pf-mono">{{ uid ?? '—' }}</span>
+              </div>
+            </div>
+
+            <div class="pf-row">
+              <div class="pf-label">Roles</div>
+              <div class="pf-value">
+                <div class="pf-badges" *ngIf="roles.length; else noRoles">
+                  <span class="pf-badge" *ngFor="let r of roles">
+                    <i class="bi bi-person-badge"></i>
+                    {{ r }}
+                  </span>
+                </div>
+                <ng-template #noRoles>
+                  <span class="pf-muted">—</span>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security -->
+          <div class="pf-panel pf-panel-soft">
+            <div class="pf-panel-head">
+              <div>
+                <h2>Security</h2>
+                <span class="pf-sub">Basic protection tips</span>
+              </div>
+            </div>
+
+            <ul class="pf-list">
+              <li>
+                <i class="bi bi-check2-circle"></i>
+                Don’t share your access token or password.
+              </li>
+              <li>
+                <i class="bi bi-check2-circle"></i>
+                Logout when using a shared computer.
+              </li>
+              <li>
+                <i class="bi bi-check2-circle"></i>
+                Use a strong password (12+ characters).
+              </li>
+            </ul>
+
+            <div class="pf-note" *ngIf="copied">
+              <i class="bi bi-clipboard-check"></i>
+              Email copied!
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcements Section -->
+        <div class="pf-announcements-section">
+          <div class="pf-announcements-header">
+            <h2>
+              <i class="bi bi-megaphone"></i>
+              Latest Announcements
+            </h2>
+            <p class="pf-sub">Stay updated with platform announcements</p>
+          </div>
+          <ng-container *ngComponentOutlet="announcementsDisplayComponent"></ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
