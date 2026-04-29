@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
         BACKEND_USER_SERVICE_DIR = 'forme-microservices (1)/microservices/user-service'
         FRONTEND_DIR = 'FormeFront'
@@ -15,21 +19,40 @@ pipeline {
 
         stage('Environment Check') {
             steps {
-                sh '''
-                    echo "Checking CI tools..."
-                    java -version
-                    mvn -version
-                    node --version
-                    npm --version
-                    google-chrome --version || chromium-browser --version || chromium --version || true
-                '''
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            echo "Checking CI tools..."
+                            java -version
+                            mvn -version
+                            node --version
+                            npm --version
+                            google-chrome --version || chromium-browser --version || chromium --version || true
+                        '''
+                    } else {
+                        bat '''
+                            echo Checking CI tools...
+                            java -version
+                            mvn -version
+                            node --version
+                            npm --version
+                            where chrome || where chrome.exe || exit /b 0
+                        '''
+                    }
+                }
             }
         }
 
         stage('Backend Tests') {
             steps {
                 dir("${BACKEND_USER_SERVICE_DIR}") {
-                    sh 'mvn -B test'
+                    script {
+                        if (isUnix()) {
+                            sh 'mvn -B test'
+                        } else {
+                            bat 'mvn -B test'
+                        }
+                    }
                 }
             }
         }
@@ -37,7 +60,13 @@ pipeline {
         stage('Backend Build') {
             steps {
                 dir("${BACKEND_USER_SERVICE_DIR}") {
-                    sh 'mvn -B -DskipTests package'
+                    script {
+                        if (isUnix()) {
+                            sh 'mvn -B -DskipTests package'
+                        } else {
+                            bat 'mvn -B -DskipTests package'
+                        }
+                    }
                 }
             }
         }
@@ -45,7 +74,13 @@ pipeline {
         stage('Frontend Install') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    sh 'npm ci'
+                    script {
+                        if (isUnix()) {
+                            sh 'npm ci'
+                        } else {
+                            bat 'npm ci'
+                        }
+                    }
                 }
             }
         }
@@ -53,7 +88,13 @@ pipeline {
         stage('Frontend Tests') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    sh 'npx ng test --watch=false --browsers=ChromeHeadless --code-coverage'
+                    script {
+                        if (isUnix()) {
+                            sh 'npx ng test --watch=false --browsers=ChromeHeadless --code-coverage'
+                        } else {
+                            bat 'npx ng test --watch=false --browsers=ChromeHeadless --code-coverage'
+                        }
+                    }
                 }
             }
         }
@@ -61,7 +102,13 @@ pipeline {
         stage('Frontend Build') {
             steps {
                 dir("${FRONTEND_DIR}") {
-                    sh 'npm run build'
+                    script {
+                        if (isUnix()) {
+                            sh 'npm run build'
+                        } else {
+                            bat 'npm run build'
+                        }
+                    }
                 }
             }
         }
@@ -74,11 +121,17 @@ pipeline {
             }
             steps {
                 dir("${BACKEND_USER_SERVICE_DIR}") {
-                    sh '''
-                        mvn -B sonar:sonar \
-                          -Dsonar.host.url="$SONAR_HOST_URL" \
-                          -Dsonar.token="$SONAR_TOKEN"
-                    '''
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                mvn -B sonar:sonar \
+                                  -Dsonar.host.url="$SONAR_HOST_URL" \
+                                  -Dsonar.token="$SONAR_TOKEN"
+                            '''
+                        } else {
+                            bat 'mvn -B sonar:sonar -Dsonar.host.url="%SONAR_HOST_URL%" -Dsonar.token="%SONAR_TOKEN%"'
+                        }
+                    }
                 }
             }
         }
@@ -91,11 +144,17 @@ pipeline {
             }
             steps {
                 dir("${FRONTEND_DIR}") {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.host.url="$SONAR_HOST_URL" \
-                          -Dsonar.token="$SONAR_TOKEN"
-                    '''
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                sonar-scanner \
+                                  -Dsonar.host.url="$SONAR_HOST_URL" \
+                                  -Dsonar.token="$SONAR_TOKEN"
+                            '''
+                        } else {
+                            bat 'sonar-scanner -Dsonar.host.url="%SONAR_HOST_URL%" -Dsonar.token="%SONAR_TOKEN%"'
+                        }
+                    }
                 }
             }
         }
