@@ -132,7 +132,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                     dir('FormeFront') {
                         bat """
-                        npx sonar-scanner ^
+                        sonar-scanner ^
                           -Dsonar.host.url=http://localhost:9000 ^
                           -Dsonar.login=%SONAR_TOKEN%
                         """
