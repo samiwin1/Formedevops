@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'jdk17'
-        nodejs 'node20'
-    }
-
     environment {
         BACKEND_USER_SERVICE_DIR = 'forme-microservices (1)/microservices/user-service'
         FRONTEND_DIR = 'FormeFront'
@@ -18,9 +13,22 @@ pipeline {
             }
         }
 
+        stage('Environment Check') {
+            steps {
+                sh '''
+                    echo "Checking CI tools..."
+                    java -version
+                    mvn -version
+                    node --version
+                    npm --version
+                    google-chrome --version || chromium-browser --version || chromium --version || true
+                '''
+            }
+        }
+
         stage('Backend Tests') {
             steps {
-                dir(env.BACKEND_USER_SERVICE_DIR) {
+                dir("${BACKEND_USER_SERVICE_DIR}") {
                     sh 'mvn -B test'
                 }
             }
@@ -28,7 +36,7 @@ pipeline {
 
         stage('Backend Build') {
             steps {
-                dir(env.BACKEND_USER_SERVICE_DIR) {
+                dir("${BACKEND_USER_SERVICE_DIR}") {
                     sh 'mvn -B -DskipTests package'
                 }
             }
@@ -36,7 +44,7 @@ pipeline {
 
         stage('Frontend Install') {
             steps {
-                dir(env.FRONTEND_DIR) {
+                dir("${FRONTEND_DIR}") {
                     sh 'npm ci'
                 }
             }
@@ -44,7 +52,7 @@ pipeline {
 
         stage('Frontend Tests') {
             steps {
-                dir(env.FRONTEND_DIR) {
+                dir("${FRONTEND_DIR}") {
                     sh 'npx ng test --watch=false --browsers=ChromeHeadless --code-coverage'
                 }
             }
@@ -52,42 +60,55 @@ pipeline {
 
         stage('Frontend Build') {
             steps {
-                dir(env.FRONTEND_DIR) {
+                dir("${FRONTEND_DIR}") {
                     sh 'npm run build'
                 }
             }
         }
 
-        stage('SonarQube') {
+        stage('SonarQube Backend') {
             when {
                 expression {
                     return env.SONAR_TOKEN?.trim() && env.SONAR_HOST_URL?.trim()
                 }
             }
-            parallel {
-                stage('Backend SonarQube') {
-                    steps {
-                        dir(env.BACKEND_USER_SERVICE_DIR) {
-                            sh '''
-                                mvn -B sonar:sonar \
-                                  -Dsonar.host.url="$SONAR_HOST_URL" \
-                                  -Dsonar.token="$SONAR_TOKEN"
-                            '''
-                        }
-                    }
+            steps {
+                dir("${BACKEND_USER_SERVICE_DIR}") {
+                    sh '''
+                        mvn -B sonar:sonar \
+                          -Dsonar.host.url="$SONAR_HOST_URL" \
+                          -Dsonar.token="$SONAR_TOKEN"
+                    '''
                 }
+            }
+        }
 
-                stage('Frontend SonarQube') {
-                    steps {
-                        dir(env.FRONTEND_DIR) {
-                            sh '''
-                                sonar-scanner \
-                                  -Dsonar.host.url="$SONAR_HOST_URL" \
-                                  -Dsonar.token="$SONAR_TOKEN"
-                            '''
-                        }
-                    }
+        stage('SonarQube Frontend') {
+            when {
+                expression {
+                    return env.SONAR_TOKEN?.trim() && env.SONAR_HOST_URL?.trim()
                 }
+            }
+            steps {
+                dir("${FRONTEND_DIR}") {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.host.url="$SONAR_HOST_URL" \
+                          -Dsonar.token="$SONAR_TOKEN"
+                    '''
+                }
+            }
+        }
+
+        stage('SonarQube Placeholder') {
+            when {
+                expression {
+                    return !(env.SONAR_TOKEN?.trim() && env.SONAR_HOST_URL?.trim())
+                }
+            }
+            steps {
+                echo 'SonarQube scan skipped.'
+                echo 'Set SONAR_TOKEN and SONAR_HOST_URL in Jenkins credentials/environment to enable scans.'
             }
         }
 
