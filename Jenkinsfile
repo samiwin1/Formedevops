@@ -114,60 +114,30 @@ pipeline {
         }
 
         stage('SonarQube Backend') {
-            when {
-                expression {
-                    return env.SONAR_TOKEN?.trim() && env.SONAR_HOST_URL?.trim()
-                }
-            }
             steps {
-                dir("${BACKEND_USER_SERVICE_DIR}") {
-                    script {
-                        if (isUnix()) {
-                            sh '''
-                                mvn -B sonar:sonar \
-                                  -Dsonar.host.url="$SONAR_HOST_URL" \
-                                  -Dsonar.token="$SONAR_TOKEN"
-                            '''
-                        } else {
-                            bat 'mvn -B sonar:sonar -Dsonar.host.url="%SONAR_HOST_URL%" -Dsonar.token="%SONAR_TOKEN%"'
-                        }
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    dir('forme-microservices (1)/microservices/user-service') {
+                        bat """
+                        mvn sonar:sonar ^
+                          -Dsonar.host.url=http://localhost:9000 ^
+                          -Dsonar.token=%SONAR_TOKEN%
+                        """
                     }
                 }
             }
         }
 
         stage('SonarQube Frontend') {
-            when {
-                expression {
-                    return env.SONAR_TOKEN?.trim() && env.SONAR_HOST_URL?.trim()
-                }
-            }
             steps {
-                dir("${FRONTEND_DIR}") {
-                    script {
-                        if (isUnix()) {
-                            sh '''
-                                sonar-scanner \
-                                  -Dsonar.host.url="$SONAR_HOST_URL" \
-                                  -Dsonar.token="$SONAR_TOKEN"
-                            '''
-                        } else {
-                            bat 'sonar-scanner -Dsonar.host.url="%SONAR_HOST_URL%" -Dsonar.token="%SONAR_TOKEN%"'
-                        }
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    dir('FormeFront') {
+                        bat """
+                        npx sonar-scanner ^
+                          -Dsonar.host.url=http://localhost:9000 ^
+                          -Dsonar.login=%SONAR_TOKEN%
+                        """
                     }
                 }
-            }
-        }
-
-        stage('SonarQube Placeholder') {
-            when {
-                expression {
-                    return !(env.SONAR_TOKEN?.trim() && env.SONAR_HOST_URL?.trim())
-                }
-            }
-            steps {
-                echo 'SonarQube scan skipped.'
-                echo 'Set SONAR_TOKEN and SONAR_HOST_URL in Jenkins credentials/environment to enable scans.'
             }
         }
 
