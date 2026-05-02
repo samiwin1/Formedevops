@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN npx ng build
+RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/dist/forme-frontend/browser /usr/share/nginx/html

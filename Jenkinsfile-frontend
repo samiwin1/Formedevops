@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'samiwin/frontend:latest'
+        DOCKER_IMAGE = 'samiwin/forme-frontend:latest'
         CHROME_BIN = '/usr/bin/google-chrome-stable'
         CI = 'true'
         NG_CLI_ANALYTICS = 'false'
@@ -35,9 +35,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                dir('FormeFront') {
-                    sh 'docker build -t $DOCKER_IMAGE .'
-                }
+                sh 'docker build -t $DOCKER_IMAGE FormeFront'
             }
         }
 
