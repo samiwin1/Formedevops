@@ -22,3 +22,4 @@ Thumbs.db
 
 # Runtime/generated files
 generated-certificates/
+.vagrant/

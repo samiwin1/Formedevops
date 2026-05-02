@@ -2,7 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'samiwin/user-service:latest'
+        DOCKER_IMAGE = 'samiwin/frontend:latest'
+        CHROME_BIN = '/usr/bin/google-chrome-stable'
+        CI = 'true'
+        NG_CLI_ANALYTICS = 'false'
     }
 
     stages {
@@ -14,24 +17,26 @@ pipeline {
 
         stage('Build') {
             steps {
-                dir('forme-microservices (1)/microservices/user-service') {
-                    sh 'mvn package -DskipTests'
+                dir('FormeFront') {
+                    sh 'npm install'
                 }
             }
         }
 
         stage('Test') {
             steps {
-                dir('forme-microservices (1)/microservices/user-service') {
-                    sh 'mvn test'
+                dir('FormeFront') {
+                    timeout(time: 10, unit: 'MINUTES') {
+                        sh 'npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --progress=false'
+                    }
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                dir('forme-microservices (1)/microservices') {
-                    sh 'docker build -t $DOCKER_IMAGE -f user-service/Dockerfile .'
+                dir('FormeFront') {
+                    sh 'docker build -t $DOCKER_IMAGE .'
                 }
             }
         }
@@ -42,13 +47,6 @@ pipeline {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     sh 'docker push $DOCKER_IMAGE'
                 }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
             }
         }
     }
