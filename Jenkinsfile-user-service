@@ -65,17 +65,18 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    def kubeconfig = '/var/lib/jenkins/.kube/config'
                     def kubectlReady = sh(
-                        script: 'command -v kubectl >/dev/null 2>&1 && kubectl cluster-info >/dev/null 2>&1',
+                        script: "command -v kubectl >/dev/null 2>&1 && test -f ${kubeconfig} && kubectl --kubeconfig=${kubeconfig} cluster-info >/dev/null 2>&1",
                         returnStatus: true
                     ) == 0
 
                     if (kubectlReady) {
-                        sh 'kubectl apply -f k8s/namespace.yaml'
-                        sh 'kubectl apply -f k8s/deployment.yaml'
-                        sh 'kubectl apply -f k8s/service.yaml'
-                        sh 'kubectl apply -f k8s/monitoring/prometheus-deployment.yaml'
-                        sh 'kubectl apply -f k8s/monitoring/grafana-deployment.yaml'
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/namespace.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/deployment.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/service.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/prometheus-deployment.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/grafana-deployment.yaml"
                     } else {
                         echo 'Kubernetes deploy skipped: kubectl is not installed or no cluster is configured.'
                     }

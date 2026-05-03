@@ -73,8 +73,22 @@ usermod -aG docker jenkins
 
 systemctl enable docker
 systemctl start docker
-minikube start --driver=docker --force || true
-sudo -u jenkins -H minikube start --driver=docker || true
+
+# k3s lightweight Kubernetes cluster for Jenkins deployments
+if ! command -v k3s >/dev/null 2>&1; then
+  curl -sfL https://get.k3s.io | sh -
+else
+  systemctl enable k3s
+  systemctl start k3s
+fi
+
+mkdir -p /var/lib/jenkins/.kube
+if [ -f /etc/rancher/k3s/k3s.yaml ]; then
+  cp /etc/rancher/k3s/k3s.yaml /var/lib/jenkins/.kube/config
+  chown -R jenkins:jenkins /var/lib/jenkins/.kube
+  chmod 600 /var/lib/jenkins/.kube/config
+fi
+
 systemctl enable jenkins
 systemctl restart jenkins
 
