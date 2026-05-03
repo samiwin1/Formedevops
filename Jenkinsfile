@@ -61,8 +61,19 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
+                script {
+                    def kubectlReady = sh(
+                        script: 'command -v kubectl >/dev/null 2>&1 && kubectl cluster-info >/dev/null 2>&1',
+                        returnStatus: true
+                    ) == 0
+
+                    if (kubectlReady) {
+                        sh 'kubectl apply -f k8s/deployment.yaml'
+                        sh 'kubectl apply -f k8s/service.yaml'
+                    } else {
+                        echo 'Kubernetes deploy skipped: kubectl is not installed or no cluster is configured.'
+                    }
+                }
             }
         }
     }
