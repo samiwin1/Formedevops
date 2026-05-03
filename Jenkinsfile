@@ -75,6 +75,7 @@ pipeline {
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/namespace.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/deployment.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/service.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} rollout restart deployment/user-service -n pidev"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/prometheus-deployment.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/grafana-deployment.yaml"
                     } else {
