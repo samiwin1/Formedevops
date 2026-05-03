@@ -41,9 +41,9 @@ apt-get update
 apt-get install -y nodejs docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin jenkins google-chrome-stable kubectl
 
 # Minikube
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-install minikube-linux-amd64 /usr/local/bin/minikube
-rm -f minikube-linux-amd64
+curl -L --retry 5 --retry-delay 5 --retry-all-errors -o /tmp/minikube-linux-amd64 https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+install /tmp/minikube-linux-amd64 /usr/local/bin/minikube
+rm -f /tmp/minikube-linux-amd64
 
 if grep -q '^JAVA_HOME=' /etc/default/jenkins; then
   sed -i 's|^JAVA_HOME=.*|JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64|' /etc/default/jenkins
