@@ -11,7 +11,7 @@ rm -f /etc/apt/sources.list.d/jenkins.list
 
 apt-get update
 dpkg --configure -a
-apt-get install -y ca-certificates curl gnupg lsb-release git maven openjdk-17-jdk openjdk-21-jdk
+apt-get install -y ca-certificates curl gnupg lsb-release git maven openjdk-17-jdk openjdk-21-jdk apt-transport-https
 
 # Node.js 20
 mkdir -p /etc/apt/keyrings
@@ -32,8 +32,18 @@ echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkin
 curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --batch --yes --dearmor -o /etc/apt/keyrings/google-linux.gpg
 echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-linux.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
 
+# Kubernetes CLI
+mkdir -p -m 755 /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --batch --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
+
 apt-get update
-apt-get install -y nodejs docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin jenkins google-chrome-stable
+apt-get install -y nodejs docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin jenkins google-chrome-stable kubectl
+
+# Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+install minikube-linux-amd64 /usr/local/bin/minikube
+rm -f minikube-linux-amd64
 
 if grep -q '^JAVA_HOME=' /etc/default/jenkins; then
   sed -i 's|^JAVA_HOME=.*|JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64|' /etc/default/jenkins
@@ -63,6 +73,8 @@ usermod -aG docker jenkins
 
 systemctl enable docker
 systemctl start docker
+minikube start --driver=docker --force || true
+sudo -u jenkins -H minikube start --driver=docker || true
 systemctl enable jenkins
 systemctl restart jenkins
 
