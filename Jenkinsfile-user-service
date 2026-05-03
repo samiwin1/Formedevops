@@ -28,6 +28,20 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    try {
+                        dir('forme-microservices (1)/microservices/user-service') {
+                            sh 'mvn sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://10.0.2.15:9000 -Dsonar.login=sqp_2655e6b650acf720f1a9857f5688d10fe7c1c0d'
+                        }
+                    } catch (err) {
+                        echo "SonarQube analysis skipped: ${err}"
+                    }
+                }
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 dir('forme-microservices (1)/microservices') {

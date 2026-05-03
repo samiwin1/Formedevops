@@ -33,6 +33,22 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    try {
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            dir('FormeFront') {
+                                sh 'sonar-scanner -Dsonar.login=$SONAR_TOKEN'
+                            }
+                        }
+                    } catch (err) {
+                        echo "SonarQube analysis skipped: ${err}"
+                    }
+                }
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 sh 'docker build -t $DOCKER_IMAGE FormeFront'
