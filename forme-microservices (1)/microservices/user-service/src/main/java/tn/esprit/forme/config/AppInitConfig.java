@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 
 @Configuration
 @RequiredArgsConstructor
 public class AppInitConfig {
 
     @Bean
+    @Order(1)
     CommandLineRunner seedRoles(RoleRepository roleRepository) {
         return args -> {
             createIfMissing(roleRepository, "ROLE_USER");

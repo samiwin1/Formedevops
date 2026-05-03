@@ -73,6 +73,7 @@ pipeline {
 
                     if (kubectlReady) {
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/namespace.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/mysql.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/deployment.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/service.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} rollout restart deployment/user-service -n pidev"
