@@ -24,6 +24,7 @@ pipeline {
             steps {
                 dir('forme-microservices (1)/microservices/user-service') {
                     sh 'mvn test'
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
@@ -70,8 +71,11 @@ pipeline {
                     ) == 0
 
                     if (kubectlReady) {
+                        sh 'kubectl apply -f k8s/namespace.yaml'
                         sh 'kubectl apply -f k8s/deployment.yaml'
                         sh 'kubectl apply -f k8s/service.yaml'
+                        sh 'kubectl apply -f k8s/monitoring/prometheus-deployment.yaml'
+                        sh 'kubectl apply -f k8s/monitoring/grafana-deployment.yaml'
                     } else {
                         echo 'Kubernetes deploy skipped: kubectl is not installed or no cluster is configured.'
                     }
