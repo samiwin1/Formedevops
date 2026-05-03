@@ -33,7 +33,7 @@ pipeline {
                 script {
                     try {
                         dir('forme-microservices (1)/microservices/user-service') {
-                            sh 'mvn sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://10.0.2.15:9000 -Dsonar.login=sqp_2655e6b650acf720f1a9857f5688d10fe7c1c0d'
+                            sh 'mvn sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://10.0.2.15:9000 -Dsonar.login=sqa_98b386e6206eaeaef54e164839f214a4bd51dacc'
                         }
                     } catch (err) {
                         echo "SonarQube analysis skipped: ${err}"
