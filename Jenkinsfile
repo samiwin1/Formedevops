@@ -24,6 +24,7 @@ pipeline {
             steps {
                 dir('forme-microservices (1)/microservices/user-service') {
                     sh 'mvn test'
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
@@ -32,8 +33,10 @@ pipeline {
             steps {
                 script {
                     try {
-                        dir('forme-microservices (1)/microservices/user-service') {
-                            sh 'mvn sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://10.0.2.15:9000 -Dsonar.login=sqa_98b386e6206eaeaef54e164839f214a4bd51dacc'
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            dir('forme-microservices (1)/microservices/user-service') {
+                                sh 'mvn sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}'
+                            }
                         }
                     } catch (err) {
                         echo "SonarQube analysis skipped: ${err}"
@@ -62,14 +65,18 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    def kubeconfig = '/var/lib/jenkins/.kube/config'
                     def kubectlReady = sh(
-                        script: 'command -v kubectl >/dev/null 2>&1 && kubectl cluster-info >/dev/null 2>&1',
+                        script: "command -v kubectl >/dev/null 2>&1 && test -f ${kubeconfig} && kubectl --kubeconfig=${kubeconfig} cluster-info >/dev/null 2>&1",
                         returnStatus: true
                     ) == 0
 
                     if (kubectlReady) {
-                        sh 'kubectl apply -f k8s/deployment.yaml'
-                        sh 'kubectl apply -f k8s/service.yaml'
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/namespace.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/deployment.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/service.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/prometheus-deployment.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/grafana-deployment.yaml"
                     } else {
                         echo 'Kubernetes deploy skipped: kubectl is not installed or no cluster is configured.'
                     }
