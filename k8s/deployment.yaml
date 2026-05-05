@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service
-  namespace: pidev
+  name: userservice
+  namespace: forme-education
   labels:
-    app: user-service
+    app: userservice
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: userservice
   template:
     metadata:
       labels:
-        app: user-service
+        app: userservice
     spec:
       containers:
-        - name: user-service
+        - name: userservice
           image: samiwin/user-service:latest
           imagePullPolicy: Always
           ports:
