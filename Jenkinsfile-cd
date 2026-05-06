@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+
+    environment {
+        BACKEND_IMAGE = 'samiwin/user-service:latest'
+        FRONTEND_IMAGE = 'samiwin/forme-frontend:latest'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Images') {
+            steps {
+                sh 'docker pull $BACKEND_IMAGE || true'
+                sh 'docker pull $FRONTEND_IMAGE || true'
+            }
+        }
+
+        stage('Deploy Manifests') {
+            steps {
+                script {
+                    def kubeconfig = '/var/lib/jenkins/.kube/config'
+                    def kubectlReady = sh(
+                        script: "command -v kubectl >/dev/null 2>&1 && test -f ${kubeconfig} && kubectl --kubeconfig=${kubeconfig} cluster-info >/dev/null 2>&1",
+                        returnStatus: true
+                    ) == 0
+
+                    if (kubectlReady) {
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/namespace.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/mysql.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/deployment.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/service.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/prometheus-deployment.yaml"
+                        sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/grafana-deployment.yaml"
+                    } else {
+                        echo 'Kubernetes deploy skipped: kubectl is not installed or no cluster is configured.'
+                    }
+                }
+            }
+        }
+
+        stage('Rollout Status') {
+            steps {
+                script {
+                    def kubeconfig = '/var/lib/jenkins/.kube/config'
+                    def kubectlReady = sh(
+                        script: "command -v kubectl >/dev/null 2>&1 && test -f ${kubeconfig}",
+                        returnStatus: true
+                    ) == 0
+
+                    if (kubectlReady) {
+                        sh "kubectl --kubeconfig=${kubeconfig} rollout status deployment/userservice -n forme-education --timeout=180s"
+                    }
+                }
+            }
+        }
+
+        stage('Cluster Status') {
+            steps {
+                script {
+                    def kubeconfig = '/var/lib/jenkins/.kube/config'
+                    def kubectlReady = sh(
+                        script: "command -v kubectl >/dev/null 2>&1 && test -f ${kubeconfig}",
+                        returnStatus: true
+                    ) == 0
+
+                    if (kubectlReady) {
+                        sh "kubectl --kubeconfig=${kubeconfig} get all -n forme-education"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: pidev
+  name: forme-education
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasources
-  namespace: pidev
+  namespace: forme-education
 data:
   prometheus.yaml: |
     apiVersion: 1
@@ -15,7 +15,7 @@ data:
       - name: Prometheus
         type: prometheus
         access: proxy
-        url: http://prometheus-service.pidev.svc.cluster.local:9090
+        url: http://prometheus-service.forme-education.svc.cluster.local:9090
         isDefault: true
         editable: true
 ---
@@ -23,7 +23,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: pidev
+  namespace: forme-education
   labels:
     app: grafana
 spec:
@@ -58,7 +58,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana-service
-  namespace: pidev
+  namespace: forme-education
   labels:
     app: grafana
 spec:

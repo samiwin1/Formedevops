@@ -15,7 +15,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('forme-microservices (1)/microservices/user-service') {
-                    sh 'mvn package -DskipTests'
+                    sh 'mvn -B clean package -DskipTests'
                 }
             }
         }
@@ -23,8 +23,9 @@ pipeline {
         stage('Test') {
             steps {
                 dir('forme-microservices (1)/microservices/user-service') {
-                    sh 'mvn test'
+                    sh 'mvn -B test'
                     junit 'target/surefire-reports/*.xml'
+                    archiveArtifacts artifacts: 'target/site/jacoco/**', allowEmptyArchive: true
                 }
             }
         }
@@ -35,7 +36,7 @@ pipeline {
                     try {
                         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                             dir('forme-microservices (1)/microservices/user-service') {
-                                sh 'mvn sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}'
+                                sh 'mvn -B sonar:sonar -Dsonar.projectKey=user-service -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${SONAR_TOKEN}'
                             }
                         }
                     } catch (err) {
@@ -76,7 +77,8 @@ pipeline {
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/mysql.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/deployment.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/service.yaml"
-                        sh "kubectl --kubeconfig=${kubeconfig} rollout restart deployment/user-service -n pidev"
+                        sh "kubectl --kubeconfig=${kubeconfig} rollout restart deployment/userservice -n forme-education"
+                        sh "kubectl --kubeconfig=${kubeconfig} rollout status deployment/userservice -n forme-education"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/prometheus-deployment.yaml"
                         sh "kubectl --kubeconfig=${kubeconfig} apply -f k8s/monitoring/grafana-deployment.yaml"
                     } else {

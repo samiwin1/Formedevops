@@ -15,10 +15,10 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install') {
             steps {
                 dir('FormeFront') {
-                    sh 'npm install'
+                    sh 'npm ci'
                 }
             }
         }
@@ -27,8 +27,17 @@ pipeline {
             steps {
                 dir('FormeFront') {
                     timeout(time: 10, unit: 'MINUTES') {
-                        sh 'npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox --progress=false'
+                        sh 'npm test -- --watch=false --code-coverage --browsers=ChromeHeadlessNoSandbox --progress=false'
                     }
+                    archiveArtifacts artifacts: 'coverage/**', allowEmptyArchive: true
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('FormeFront') {
+                    sh 'npm run build -- --configuration production'
                 }
             }
         }

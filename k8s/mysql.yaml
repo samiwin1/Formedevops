@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
-  namespace: pidev
+  namespace: forme-education
   labels:
     app: mysql
 spec:
@@ -37,7 +37,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql
-  namespace: pidev
+  namespace: forme-education
   labels:
     app: mysql
 spec:
